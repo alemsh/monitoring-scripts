@@ -50,9 +50,13 @@ good_keys = {
     'CommittedTime':0.,
     'RemoteWallClockTime':0.,
     'MATCH_EXP_JOBGLIDEIN_ResourceName':'other',
+    'MachineAttrGLIDEIN_SiteResource0':'other',
+    'MachineAttrGPU_NAMES0':'',
     'StartdPrincipal':'',
     'DAGManJobId':0.,
     'LastJobStatus':0.,
+    'LastVacateTime':0.,
+    'LastMatchTime':0.,
     'LastHoldReason':'',
     'LastRemotePool':'',
 }
@@ -67,7 +71,7 @@ key_types = {
                'JobCurrentStartDate','JobCurrentStartExecutingDate','JobFinishedHookDone',
                'JobLeaseDuration','JobLeaseExpiration','JobNotification','JobPrio','JobRunCount','JobStartDate',
                'JobStatus','JobUniverse','LastJobLeaseRenewal','LastJobStatus','LastMatchTime',
-               'LastSuspensionTime','LocalSysCpu','LocalUserCpu','MachineAttrCpus0','MachineAttrSlotWeight0',
+               'LastSuspensionTime','LastVacateTime','LocalSysCpu','LocalUserCpu','MachineAttrCpus0','MachineAttrSlotWeight0',
                'MaxHosts','MinHosts','NumCkpts','NumCkpts_RAW','NumJobMatches','NumJobStarts',
                'NumRestarts','NumShadowStarts','NumSystemHolds','OrigMaxHosts','ProcId','QDate',
                'Rank','RecentBlockReadBytes','RecentBlockReadKbytes','RecentBlockReads',
@@ -408,7 +412,13 @@ def insert(data):
         data['date'] = datetime.utcnow().isoformat()
     # add used time
     if 'RemoteWallClockTime' in data:
-        data['walltimehrs'] = data['RemoteWallClockTime']/3600.
+        data['totalwalltimehrs'] = data['RemoteWallClockTime']/3600.
+    else:
+        data['totalwalltimehrs'] = 0.
+    if 'CommittedTime' in data and data['CommittedTime']:
+        data['walltimehrs'] = data['CommittedTime']/3600.
+    elif 'LastVacateTime' in data and data['LastVacateTime']:
+        data['walltimehrs'] = (data['LastVacateTime']-data['LastMatchTime'])/3600.
     else:
         data['walltimehrs'] = 0.
     # add site
