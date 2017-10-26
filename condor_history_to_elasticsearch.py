@@ -90,15 +90,20 @@ key_types = {
 class ElasticClient(object):
     def __init__(self, hostname, basename):
         self.session = requests.Session()
+        if '@' in hostname:
+            self.session.auth = tuple(hostname.split('@')[0].split('://')[1].split(':'))
+            hostname = hostname.split('://',1)[0]+'://'+hostname.split('@',1)[1]
+            print(self.session.auth)
+            print(hostname)
         # try a connection
-        r = self.session.get(hostname)
+        r = self.session.get(hostname, timeout=5)
         r.raise_for_status()
         # concat hostname and basename
         self.hostname = hostname+'/'+basename+'/'
     def put(self, name, index_name, data):
         r = None
         try:
-            r = self.session.put(self.hostname+name+'/'+index_name, json=data)
+            r = self.session.put(self.hostname+name+'/'+index_name, json=data, timeout=5)
             r.raise_for_status()
         except Exception:
             logging.warn('cannot put %s/%s to elasticsearch at %r', name,
