@@ -57,6 +57,7 @@ good_keys = {
     'LastJobStatus':0.,
     'LastVacateTime':0.,
     'LastMatchTime':0.,
+    'JobLastStartDate':0.,
     'LastHoldReason':'',
     'LastRemotePool':'',
 }
@@ -70,7 +71,7 @@ key_types = {
                'ExecutableSize_RAW','ExitCode','ExitStatus','ImageSize','ImageSize_RAW',
                'JobCurrentStartDate','JobCurrentStartExecutingDate','JobFinishedHookDone',
                'JobLeaseDuration','JobLeaseExpiration','JobNotification','JobPrio','JobRunCount','JobStartDate',
-               'JobStatus','JobUniverse','LastJobLeaseRenewal','LastJobStatus','LastMatchTime',
+               'JobStatus','JobUniverse','LastJobLeaseRenewal','LastJobStatus','LastMatchTime','JobLastStartDate',
                'LastSuspensionTime','LastVacateTime','LocalSysCpu','LocalUserCpu','MachineAttrCpus0','MachineAttrSlotWeight0',
                'MaxHosts','MinHosts','NumCkpts','NumCkpts_RAW','NumJobMatches','NumJobStarts',
                'NumRestarts','NumShadowStarts','NumSystemHolds','OrigMaxHosts','ProcId','QDate',
@@ -422,8 +423,9 @@ def insert(data):
         data['totalwalltimehrs'] = 0.
     if 'CommittedTime' in data and data['CommittedTime']:
         data['walltimehrs'] = data['CommittedTime']/3600.
-    elif 'LastVacateTime' in data and data['LastVacateTime']:
-        data['walltimehrs'] = (data['LastVacateTime']-data['LastMatchTime'])/3600.
+    elif ('LastVacateTime' in data and data['LastVacateTime']
+          and 'JobLastStartDate' in data and data['JobLastStartDate']:
+        data['walltimehrs'] = (data['LastVacateTime']-data['JobLastStartDate'])/3600.
     else:
         data['walltimehrs'] = 0.
     # add site
