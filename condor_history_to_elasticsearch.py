@@ -424,7 +424,7 @@ def insert(data):
     if 'CommittedTime' in data and data['CommittedTime']:
         data['walltimehrs'] = data['CommittedTime']/3600.
     elif ('LastVacateTime' in data and data['LastVacateTime']
-          and 'JobLastStartDate' in data and data['JobLastStartDate']:
+          and 'JobLastStartDate' in data and data['JobLastStartDate']):
         data['walltimehrs'] = (data['LastVacateTime']-data['JobLastStartDate'])/3600.
     else:
         data['walltimehrs'] = 0.
