@@ -12,8 +12,6 @@ import logging
 import classad
 
 import requests
-from elasticsearch import Elasticsearch
-from elasticsearch.helpers import bulk
 from getpass import getpass
 
 now = datetime.utcnow()
@@ -532,6 +530,8 @@ if options.collectors:
             print('   got',i,'entries')
 
 else:
+    from elasticsearch import Elasticsearch
+    from elasticsearch.helpers import bulk
     es = Elasticsearch(hosts=['http://{}:{}@{}'.format(options.user, password, options.address)],
                        timeout=5000)
     for path in args:
