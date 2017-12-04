@@ -450,56 +450,59 @@ def es_data_gen(filename, index):
         entry = ''
         for line in f.readlines():
             if line.startswith('***'):
-                c = classad.parseOne(entry)
-                ret = {}
-                for k in c.keys():
-                    try:
-                        ret[k] = c.eval(k)
-                    except TypeError:
-                        ret[k] = c[k]
-                filter_keys(ret)
-                data = ret
-                # fix site
-                bad_site = is_bad_site(data)
-                if bad_site:
-                    if 'LastRemoteHost' in data:
-                        site = get_site_from_domain(data['LastRemoteHost'].split('@')[-1])
-                        if site:
-                            data['MATCH_EXP_JOBGLIDEIN_ResourceName'] = site
-                        elif 'StartdPrincipal' in data:
-                            site = get_site_from_ip_range(data['StartdPrincipal'].split('/')[-1])
+                try:
+                    c = classad.parseOne(entry)
+                    ret = {}
+                    for k in c.keys():
+                        try:
+                            ret[k] = c.eval(k)
+                        except TypeError:
+                            ret[k] = c[k]
+                    filter_keys(ret)
+                    data = ret
+                    # fix site
+                    bad_site = is_bad_site(data)
+                    if bad_site:
+                        if 'LastRemoteHost' in data:
+                            site = get_site_from_domain(data['LastRemoteHost'].split('@')[-1])
                             if site:
                                 data['MATCH_EXP_JOBGLIDEIN_ResourceName'] = site
-                # add completion date
-                if data['CompletionDate'] != zero and data['CompletionDate']:
-                    data['date'] = data['CompletionDate']
-                elif data['EnteredCurrentStatus'] != zero and data['EnteredCurrentStatus']:
-                    data['date'] = data['EnteredCurrentStatus']
-                else:
-                    data['date'] = datetime.utcnow().isoformat()
-                # add used time
-                if 'RemoteWallClockTime' in data:
-                    data['totalwalltimehrs'] = data['RemoteWallClockTime']/3600.
-                else:
-                    data['totalwalltimehrs'] = 0.
-                if 'CommittedTime' in data and data['CommittedTime']:
-                    data['walltimehrs'] = data['CommittedTime']/3600.
-                elif ('LastVacateTime' in data and data['LastVacateTime']
-                      and 'JobLastStartDate' in data and data['JobLastStartDate']):
-                    data['walltimehrs'] = (data['LastVacateTime']-data['JobLastStartDate'])/3600.
-                else:
-                    data['walltimehrs'] = 0.
-                # add site
-                if data['MATCH_EXP_JOBGLIDEIN_ResourceName'] in site_names:
-                    data['site'] = site_names[data['MATCH_EXP_JOBGLIDEIN_ResourceName']]
-                else:
-                    data['site'] = 'other'
+                            elif 'StartdPrincipal' in data:
+                                site = get_site_from_ip_range(data['StartdPrincipal'].split('/')[-1])
+                                if site:
+                                    data['MATCH_EXP_JOBGLIDEIN_ResourceName'] = site
+                    # add completion date
+                    if data['CompletionDate'] != zero and data['CompletionDate']:
+                        data['date'] = data['CompletionDate']
+                    elif data['EnteredCurrentStatus'] != zero and data['EnteredCurrentStatus']:
+                        data['date'] = data['EnteredCurrentStatus']
+                    else:
+                        data['date'] = datetime.utcnow().isoformat()
+                    # add used time
+                    if 'RemoteWallClockTime' in data:
+                        data['totalwalltimehrs'] = data['RemoteWallClockTime']/3600.
+                    else:
+                        data['totalwalltimehrs'] = 0.
+                    if 'CommittedTime' in data and data['CommittedTime']:
+                        data['walltimehrs'] = data['CommittedTime']/3600.
+                    elif ('LastVacateTime' in data and data['LastVacateTime']
+                          and 'JobLastStartDate' in data and data['JobLastStartDate']):
+                        data['walltimehrs'] = (data['LastVacateTime']-data['JobLastStartDate'])/3600.
+                    else:
+                        data['walltimehrs'] = 0.
+                    # add site
+                    if data['MATCH_EXP_JOBGLIDEIN_ResourceName'] in site_names:
+                        data['site'] = site_names[data['MATCH_EXP_JOBGLIDEIN_ResourceName']]
+                    else:
+                        data['site'] = 'other'
 
-                data['_index'] = index
-                data['_type'] = 'job_history'
+                    data['_index'] = index
+                    data['_type'] = 'job_history'
 
-                yield data
-                entry = ''
+                    yield data
+                    entry = ''
+                except:
+                    entry = ''
             else:
                 entry += line+'\n'
 
