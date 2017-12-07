@@ -124,7 +124,7 @@ parser.add_option('-n','--indexname',default='job_history',
                   help='index name (default job_history)')
 parser.add_option('--collectors', default=False, action='store_true',
                   help='Args are collector addresses, not files')
-parser.add_option('-u', '--user', default='elastic', help='ES Cluster Username')
+parser.add_option('-u', '--user', default=None, help='ES Cluster Username')
 parser.add_option('-p', '--password', action='store_true', help='password prompt')
 (options, args) = parser.parse_args()
 if not args:
@@ -438,6 +438,11 @@ def insert(data):
         data['site'] = site_names[data['MATCH_EXP_JOBGLIDEIN_ResourceName']]
     else:
         data['site'] = 'other'
+
+    # Add gpuhrs and cpuhrs
+    data['gpuhrs'] = data.get('Requestgpus', 0.) * data['totalwalltimehrs']
+    data['cpuhrs'] = data.get('RequestCpus', 0.) * data['totalwalltimehrs']
+
     # upload
     index_id = data['GlobalJobId'].replace('#','-').replace('.','-')
     try:
@@ -496,6 +501,10 @@ def es_data_gen(filename, index):
                     else:
                         data['site'] = 'other'
 
+                    # Add gpuhrs and cpuhrs
+                    data['gpuhrs'] = data.get('Requestgpus', 0.) * data['totalwalltimehrs']
+                    data['cpuhrs'] = data.get('RequestCpus', 0.) * data['totalwalltimehrs']
+
                     data['_index'] = index
                     data['_type'] = 'job_history'
 
@@ -535,7 +544,11 @@ if options.collectors:
 else:
     from elasticsearch import Elasticsearch
     from elasticsearch.helpers import bulk
-    es = Elasticsearch(hosts=['http://{}:{}@{}'.format(options.user, password, options.address)],
+    if options.user is not None:
+        url = 'http://{}:{}@{}'.format(options.user, password, options.address)
+    else:
+        url = 'http://' + options.address
+    es = Elasticsearch(hosts=[url],
                        timeout=5000)
     for path in args:
         for filename in glob.iglob(path):
