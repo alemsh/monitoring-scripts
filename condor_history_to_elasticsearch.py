@@ -63,6 +63,7 @@ good_keys = {
     'JobLastStartDate':0.,
     'LastHoldReason':'',
     'LastRemotePool':'',
+    'PRESIGNED_GET_URL':''
 }
 
 key_types = {
