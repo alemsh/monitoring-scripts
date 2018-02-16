@@ -347,6 +347,12 @@ def get_type(val):
             return val
 
 def filter_keys(data):
+
+    # RequestGPUs comes in many cases
+    for k in ['RequestGpus', 'RequestGPUs']:
+        if k in data:
+            data['Requestgpus'] = data[k]
+
     for k in data.keys():
         if k not in good_keys:
             del data[k]
