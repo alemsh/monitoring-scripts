@@ -8,3 +8,5 @@ RUN yum -y install epel-release && \
 COPY . /condor_tools
 
 WORKDIR /condor_tools
+
+ENV CONDOR_CONFIG=/condor_tools/condor_config
