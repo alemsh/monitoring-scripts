@@ -134,6 +134,8 @@ if not args:
 if options.password:
     password = getpass()
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(name)s : %(message)s')
+
 reserved_ips = {
     '18.12': 'MIT',
     '23.22': 'AWS',
@@ -536,20 +538,23 @@ if options.collectors:
         coll = htcondor.Collector(coll_address)
         schedd_ads = coll.locateAll(htcondor.DaemonTypes.Schedd)
         for schedd_ad in schedd_ads:
-            print('getting history from', schedd_ad['Name'])
+            logging.info('getting history from %s', schedd_ad['Name'])
             schedd = htcondor.Schedd(schedd_ad)
-            i = 0
-            for i,entry in enumerate(schedd.history('EnteredCurrentStatus >= {0}'.format(start_stamp),[],10000)):
-                ret = {}
-                for k in entry.keys():
-                    try:
-                        ret[k] = entry.eval(k)
-                    except TypeError:
-                        ret[k] = entry[k]
-                filter_keys(ret)
-                #fix_types(ret)
-                insert(ret)
-            print('   got',i,'entries')
+            try:
+                i = 0
+                for i,entry in enumerate(schedd.history('EnteredCurrentStatus >= {0}'.format(start_stamp),[],10000)):
+                    ret = {}
+                    for k in entry.keys():
+                        try:
+                            ret[k] = entry.eval(k)
+                        except TypeError:
+                            ret[k] = entry[k]
+                    filter_keys(ret)
+                    #fix_types(ret)
+                    insert(ret)
+                logging.info('got %d entries', i)
+            except Exception:
+                logging.info('%s failed', schedd_ad['Name'], exc_info=True)
 
 else:
     from elasticsearch import Elasticsearch
