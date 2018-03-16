@@ -423,6 +423,8 @@ def insert(data):
                 site = get_site_from_ip_range(data['StartdPrincipal'].split('/')[-1])
                 if site:
                     data['MATCH_EXP_JOBGLIDEIN_ResourceName'] = site
+    # add metadata insertion date
+    data['insert_date'] = datetime.utcnow().isoformat()
     # add completion date
     if data['CompletionDate'] != zero and data['CompletionDate']:
         data['date'] = data['CompletionDate']
