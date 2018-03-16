@@ -519,6 +519,7 @@ def es_data_gen(filename, index):
 
                     data['_index'] = index
                     data['_type'] = 'job_history'
+                    data['_id'] = data['GlobalJobId'].replace('#','-').replace('.','-')
 
                     yield data
                     entry = ''
