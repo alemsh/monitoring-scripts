@@ -307,6 +307,7 @@ site_names = {
     'Comet': 'XSEDE-Comet',
     'HOSTED_STANFORD': 'XSEDE-XStream',
     'Xstream': 'XSEDE-XStream',
+    'xstream': 'XSEDE-XStream',
     'NPX': 'US-NPX',
     'GZK': 'US-GZK',
     'CHTC': 'US-CHTC',
