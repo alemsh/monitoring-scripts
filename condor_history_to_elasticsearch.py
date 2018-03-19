@@ -519,6 +519,9 @@ def es_data_gen(filename, index):
                     data['gpuhrs'] = data.get('Requestgpus', 0.) * data['totalwalltimehrs']
                     data['cpuhrs'] = data.get('RequestCpus', 0.) * data['totalwalltimehrs']
 
+                    # add retry hours
+                    data['retrytimehrs'] = data['totalwalltimehrs'] - data['walltimehrs']
+
                     data['_index'] = index
                     data['_type'] = 'job_history'
                     data['_id'] = data['GlobalJobId'].replace('#','-').replace('.','-')
