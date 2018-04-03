@@ -307,6 +307,7 @@ site_names = {
     'Comet': 'XSEDE-Comet',
     'HOSTED_STANFORD': 'XSEDE-XStream',
     'Xstream': 'XSEDE-XStream',
+    'xstream': 'XSEDE-XStream',
     'NPX': 'US-NPX',
     'GZK': 'US-GZK',
     'CHTC': 'US-CHTC',
@@ -518,6 +519,9 @@ def es_data_gen(filename, index):
                     # Add gpuhrs and cpuhrs
                     data['gpuhrs'] = data.get('Requestgpus', 0.) * data['totalwalltimehrs']
                     data['cpuhrs'] = data.get('RequestCpus', 0.) * data['totalwalltimehrs']
+
+                    # add retry hours
+                    data['retrytimehrs'] = data['totalwalltimehrs'] - data['walltimehrs']
 
                     data['_index'] = index
                     data['_type'] = 'job_history'
