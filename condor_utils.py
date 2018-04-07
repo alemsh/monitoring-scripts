@@ -1,5 +1,3 @@
-#!/bin/env python
-
 from __future__ import print_function
 import os
 import glob
@@ -10,9 +8,6 @@ import time
 import logging
 
 import classad
-
-import requests
-from getpass import getpass
 
 now = datetime.utcnow()
 zero = datetime.utcfromtimestamp(0).isoformat()
@@ -92,49 +87,6 @@ key_types = {
              'WantRemoteSyscalls','wantglidein','wantrhel6'],
 }
 
-class ElasticClient(object):
-    def __init__(self, hostname, basename):
-        self.session = requests.Session()
-        if '@' in hostname:
-            self.session.auth = tuple(hostname.split('@')[0].split('://')[1].split(':'))
-            hostname = hostname.split('://',1)[0]+'://'+hostname.split('@',1)[1]
-            print(self.session.auth)
-            print(hostname)
-        # try a connection
-        r = self.session.get(hostname, timeout=5)
-        r.raise_for_status()
-        # concat hostname and basename
-        self.hostname = hostname+'/'+basename+'/'
-    def put(self, name, index_name, data):
-        r = None
-        try:
-            r = self.session.put(self.hostname+name+'/'+index_name, json=data, timeout=5)
-            r.raise_for_status()
-        except Exception:
-            logging.warn('cannot put %s/%s to elasticsearch at %r', name,
-                         index_name, self.hostname, exc_info=True)
-            if r:
-                logging.warn('%r',r.content)
-            raise
-
-parser = OptionParser('usage: %prog [options] history_files')
-parser.add_option('-a','--address',help='elasticsearch address')
-parser.add_option('-b','--basename',default='condor',
-                  help='collection basename (default condor)')
-parser.add_option('-n','--indexname',default='job_history',
-                  help='index name (default job_history)')
-parser.add_option('--collectors', default=False, action='store_true',
-                  help='Args are collector addresses, not files')
-parser.add_option('-u', '--user', default=None, help='ES Cluster Username')
-parser.add_option('-p', '--password', action='store_true', help='password prompt')
-(options, args) = parser.parse_args()
-if not args:
-    parser.error('no condor history files')
-
-if options.password:
-    password = getpass()
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(name)s : %(message)s')
 
 reserved_ips = {
     '18.12': 'MIT',
@@ -334,24 +286,7 @@ def get_site_from_ip_range(ip):
             ret = reserved_ips['.'.join(parts[:2])]
     return ret
 
-
-def get_type(val):
-    if val == 'false':
-        return False
-    elif val == 'true':
-        return True
-    elif val.startswith('"') and val.endswith('"') and '"' not in val[1:-1]:
-        return val[1:-1]
-    try:
-        return int(val)
-    except:
-        try:
-            return float(val)
-        except:
-            return val
-
 def filter_keys(data):
-
     # RequestGPUs comes in many cases
     for k in ['RequestGpus', 'RequestGPUs']:
         if k in data:
@@ -381,25 +316,6 @@ def filter_keys(data):
         else:
             data[k] = str(data[k])
 
-def fix_types(data):
-    for t in key_types:
-        if t == 'string':
-            operation = str
-        elif t == 'number':
-            operation = float
-        elif t == 'bool':
-            operation = bool
-        else:
-            raise Exception('unknown type %r'%t)
-        for k in key_types[t]:
-            if k not in data:
-                continue
-            try:
-                data[k] = operation(data[k])
-            except:
-                logging.info("dropping bad key %r", k, exc_info=True)
-                del data[k]
-
 def is_bad_site(data):
     if 'MATCH_EXP_JOBGLIDEIN_ResourceName' not in data:
         return True
@@ -412,7 +328,13 @@ def is_bad_site(data):
         return True
     return False
 
-def insert(data):
+def add_classads(data):
+    """Add extra classads to a condor job
+
+    Args:
+        data (dict): a classad dict for a single job
+    """
+    filter_keys(data)
     # fix site
     bad_site = is_bad_site(data)
     if bad_site:
@@ -424,8 +346,8 @@ def insert(data):
                 site = get_site_from_ip_range(data['StartdPrincipal'].split('/')[-1])
                 if site:
                     data['MATCH_EXP_JOBGLIDEIN_ResourceName'] = site
-    # add metadata insertion date
-    data['insert_date'] = datetime.utcnow().isoformat()
+
+    data['@timestamp'] = datetime.utcnow().isoformat()
     # add completion date
     if data['CompletionDate'] != zero and data['CompletionDate']:
         data['date'] = data['CompletionDate']
@@ -452,127 +374,67 @@ def insert(data):
         data['site'] = 'other'
 
     # Add gpuhrs and cpuhrs
-    data['gpuhrs'] = data.get('Requestgpus', 0.) * data['walltimehrs']
-    data['cpuhrs'] = data.get('RequestCpus', 0.) * data['walltimehrs']
+    data['gpuhrs'] = data.get('Requestgpus', 0.) * data['totalwalltimehrs']
+    data['cpuhrs'] = data.get('RequestCpus', 0.) * data['totalwalltimehrs']
 
     # add retry hours
     data['retrytimehrs'] = data['totalwalltimehrs'] - data['walltimehrs']
 
-    # upload
-    index_id = data['GlobalJobId'].replace('#','-').replace('.','-')
-    try:
-        client.put(options.indexname,index_id,data)
-    except Exception:
-        logging.warn('%r',data)
-        
-def es_data_gen(filename, index):
+def classad_to_dict(c):
+    ret = {}
+    for k in c.keys():
+        try:
+            ret[k] = c.eval(k)
+        except TypeError:
+            ret[k] = c[k]
+    return ret
+
+def read_from_file(filename):
+    """Read condor classads from file.
+
+    A generator that yields condor job dicts.
+
+    Args:
+        filename (str): filename to read
+    """
     with (gzip.open(filename) if filename.endswith('.gz') else open(filename)) as f:
         entry = ''
         for line in f.readlines():
             if line.startswith('***'):
                 try:
                     c = classad.parseOne(entry)
-                    ret = {}
-                    for k in c.keys():
-                        try:
-                            ret[k] = c.eval(k)
-                        except TypeError:
-                            ret[k] = c[k]
-                    filter_keys(ret)
-                    data = ret
-                    # fix site
-                    bad_site = is_bad_site(data)
-                    if bad_site:
-                        if 'LastRemoteHost' in data:
-                            site = get_site_from_domain(data['LastRemoteHost'].split('@')[-1])
-                            if site:
-                                data['MATCH_EXP_JOBGLIDEIN_ResourceName'] = site
-                            elif 'StartdPrincipal' in data:
-                                site = get_site_from_ip_range(data['StartdPrincipal'].split('/')[-1])
-                                if site:
-                                    data['MATCH_EXP_JOBGLIDEIN_ResourceName'] = site
-                    # add completion date
-                    if data['CompletionDate'] != zero and data['CompletionDate']:
-                        data['date'] = data['CompletionDate']
-                    elif data['EnteredCurrentStatus'] != zero and data['EnteredCurrentStatus']:
-                        data['date'] = data['EnteredCurrentStatus']
-                    else:
-                        data['date'] = datetime.utcnow().isoformat()
-                    # add used time
-                    if 'RemoteWallClockTime' in data:
-                        data['totalwalltimehrs'] = data['RemoteWallClockTime']/3600.
-                    else:
-                        data['totalwalltimehrs'] = 0.
-                    if 'CommittedTime' in data and data['CommittedTime']:
-                        data['walltimehrs'] = data['CommittedTime']/3600.
-                    elif ('LastVacateTime' in data and data['LastVacateTime']
-                          and 'JobLastStartDate' in data and data['JobLastStartDate']):
-                        data['walltimehrs'] = (data['LastVacateTime']-data['JobLastStartDate'])/3600.
-                    else:
-                        data['walltimehrs'] = 0.
-                    # add site
-                    if data['MATCH_EXP_JOBGLIDEIN_ResourceName'] in site_names:
-                        data['site'] = site_names[data['MATCH_EXP_JOBGLIDEIN_ResourceName']]
-                    else:
-                        data['site'] = 'other'
-
-                    # Add gpuhrs and cpuhrs
-                    data['gpuhrs'] = data.get('Requestgpus', 0.) * data['totalwalltimehrs']
-                    data['cpuhrs'] = data.get('RequestCpus', 0.) * data['totalwalltimehrs']
-
-                    # add retry hours
-                    data['retrytimehrs'] = data['totalwalltimehrs'] - data['walltimehrs']
-
-                    data['_index'] = index
-                    data['_type'] = 'job_history'
-                    data['_id'] = data['GlobalJobId'].replace('#','-').replace('.','-')
-
-                    yield data
+                    yield classad_to_dict(c)
                     entry = ''
                 except:
                     entry = ''
             else:
                 entry += line+'\n'
 
+def read_from_collector(address, history=False):
+    """Connect to condor collectors and schedds to pull job ads directly.
 
-if options.collectors:
-    client = ElasticClient(options.address, options.basename)
-    # connect to condor collectors and schedds to pull history directly
+    Args:
+        address (str): address of collector
+        history (bool): read history (True) or active queue (False)
+    """
     import htcondor
-    start_dt = datetime.now()-timedelta(minutes=10)
-    start_stamp = time.mktime(start_dt.timetuple())
-    for coll_address in args:
-        coll = htcondor.Collector(coll_address)
-        schedd_ads = coll.locateAll(htcondor.DaemonTypes.Schedd)
-        for schedd_ad in schedd_ads:
-            logging.info('getting history from %s', schedd_ad['Name'])
-            schedd = htcondor.Schedd(schedd_ad)
-            try:
-                i = 0
-                for i,entry in enumerate(schedd.history('EnteredCurrentStatus >= {0}'.format(start_stamp),[],10000)):
-                    ret = {}
-                    for k in entry.keys():
-                        try:
-                            ret[k] = entry.eval(k)
-                        except TypeError:
-                            ret[k] = entry[k]
-                    filter_keys(ret)
-                    #fix_types(ret)
-                    insert(ret)
-                logging.info('got %d entries', i)
-            except Exception:
-                logging.info('%s failed', schedd_ad['Name'], exc_info=True)
-
-else:
-    from elasticsearch import Elasticsearch
-    from elasticsearch.helpers import bulk
-    if options.user is not None:
-        url = 'http://{}:{}@{}'.format(options.user, password, options.address)
-    else:
-        url = 'http://' + options.address
-    es = Elasticsearch(hosts=[url],
-                       timeout=5000)
-    for path in args:
-        for filename in glob.iglob(path):
-            success, _ = bulk(es, es_data_gen(filename, options.indexname))
-            print('.',end='')
+    coll = htcondor.Collector(address)
+    schedd_ads = coll.locateAll(htcondor.DaemonTypes.Schedd)
+    for schedd_ad in schedd_ads:
+        logging.info('getting job ads from %s', schedd_ad['Name'])
+        schedd = htcondor.Schedd(schedd_ad)
+        try:
+            i = 0
+            if history:
+                start_dt = datetime.now()-timedelta(minutes=10)
+                start_stamp = time.mktime(start_dt.timetuple())
+                gen = schedd.history('EnteredCurrentStatus >= {0}'.format(start_stamp),[],10000)
+            else:
+                gen = schedd.query()
+            for i,entry in enumerate(gen):
+                ret = classad_to_dict(entry)
+                add_classads(ret)
+                yield ret
+            logging.info('got %d entries', i)
+        except Exception:
+            logging.info('%s failed', schedd_ad['Name'], exc_info=True)
