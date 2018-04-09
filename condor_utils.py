@@ -286,6 +286,12 @@ def get_site_from_ip_range(ip):
             ret = reserved_ips['.'.join(parts[:2])]
     return ret
 
+def date_from_string(s):
+    if '.' in s:
+        return datetime.strptime(s, '%Y-%m-%dT%H:%M:%S.%f')
+    else:
+        return datetime.strptime(s, '%Y-%m-%dT%H:%M:%S')
+
 def filter_keys(data):
     # RequestGPUs comes in many cases
     for k in ['RequestGpus', 'RequestGPUs']:
@@ -302,16 +308,19 @@ def filter_keys(data):
             try:
                 data[k] = bool(data[k])
             except:
+                logging.info('bad bool [%s]: %r', k, data[k], exc_info=True)
                 data[k] = good_keys[k]
         elif isinstance(good_keys[k],(float,int)):
             try:
                 data[k] = float(data[k])
             except:
+                logging.info('bad float/int [%s]: %r', k, data[k], exc_info=True)
                 data[k] = good_keys[k]
         elif isinstance(good_keys[k],datetime):
             try:
                 data[k] = datetime.utcfromtimestamp(data[k]).isoformat()
             except:
+                logging.info('bad date [%s]: %r', k, data[k], exc_info=True)
                 data[k] = zero
         else:
             data[k] = str(data[k])
@@ -355,6 +364,12 @@ def add_classads(data):
         data['date'] = data['EnteredCurrentStatus']
     else:
         data['date'] = datetime.utcnow().isoformat()
+    # add queued time
+    if data['JobCurrentStartDate'] != zero and data['JobCurrentStartDate']:
+        data['queue_time'] = date_from_string(data['JobCurrentStartDate']) - date_from_string(data['QDate'])
+    else:
+        data['queue_time'] = datetime.now() - date_from_string(data['QDate'])
+    data['queue_time'] = data['queue_time'].total_seconds()/3600.
     # add used time
     if 'RemoteWallClockTime' in data:
         data['totalwalltimehrs'] = data['RemoteWallClockTime']/3600.
@@ -413,6 +428,8 @@ def read_from_file(filename):
 def read_from_collector(address, history=False):
     """Connect to condor collectors and schedds to pull job ads directly.
 
+    A generator that yields condor job dicts.
+
     Args:
         address (str): address of collector
         history (bool): read history (True) or active queue (False)
@@ -432,9 +449,7 @@ def read_from_collector(address, history=False):
             else:
                 gen = schedd.query()
             for i,entry in enumerate(gen):
-                ret = classad_to_dict(entry)
-                add_classads(ret)
-                yield ret
+                yield classad_to_dict(entry)
             logging.info('got %d entries', i)
         except Exception:
             logging.info('%s failed', schedd_ad['Name'], exc_info=True)
