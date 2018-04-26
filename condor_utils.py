@@ -432,7 +432,7 @@ def read_from_collector(address, history=False):
 
     Args:
         address (str): address of collector
-        history (bool): read history (True) or active queue (False)
+        history (bool): read history (True) or active queue (default: False)
     """
     import htcondor
     coll = htcondor.Collector(address)
