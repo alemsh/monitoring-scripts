@@ -389,8 +389,8 @@ def add_classads(data):
         data['site'] = 'other'
 
     # Add gpuhrs and cpuhrs
-    data['gpuhrs'] = data.get('Requestgpus', 0.) * data['totalwalltimehrs']
-    data['cpuhrs'] = data.get('RequestCpus', 0.) * data['totalwalltimehrs']
+    data['gpuhrs'] = data.get('Requestgpus', 0.) * data['walltimehrs']
+    data['cpuhrs'] = data.get('RequestCpus', 0.) * data['walltimehrs']
 
     # add retry hours
     data['retrytimehrs'] = data['totalwalltimehrs'] - data['walltimehrs']
