@@ -245,14 +245,18 @@ site_names = {
     'parallel': 'CA-Alberta',
     'jasper': 'CA-Alberta',
     'illume': 'CA-Alberta',
+    'illume-new': 'CA-Alberta',
+    'Cedar': 'CA-SFU',
     'RWTH-Aachen': 'DE-Aachen',
     'aachen': 'DE-Aachen',
     'wuppertalprod': 'DE-Wuppertal',
+    'TUM': 'DE-Munich',
     'Uppsala': 'SE-Uppsala',
     'Bartol': 'US-Bartol',
     'UNI-DORTMUND': 'DE-Dortmund',
     'LIDO_Dortmund': 'DE-Dortmund',
     'PHIDO_Dortmund': 'DE-Dortmund',
+    'LIDO3_Dortmund_TEST': 'DE-Dortmund',
     'UKI-NORTHGRID-MAN-HEP': 'UK-Manchester',
     'UKI-LT2-QMUL': 'UK-Manchester',
     'Bridges': 'XSEDE-Bridges',
@@ -265,6 +269,9 @@ site_names = {
     'CHTC': 'US-CHTC',
     'Marquette': 'US-Marquette',
     'UMD': 'US-UMD',
+    'MSU': 'US-MSU',
+    'msu': 'US-MSU',
+    'PSU': 'US-PSU',
     'Japan': 'JP-Chiba',
     'Chiba': 'JP-Chiba',
 }
@@ -389,8 +396,8 @@ def add_classads(data):
         data['site'] = 'other'
 
     # Add gpuhrs and cpuhrs
-    data['gpuhrs'] = data.get('Requestgpus', 0.) * data['totalwalltimehrs']
-    data['cpuhrs'] = data.get('RequestCpus', 0.) * data['totalwalltimehrs']
+    data['gpuhrs'] = data.get('Requestgpus', 0.) * data['walltimehrs']
+    data['cpuhrs'] = data.get('RequestCpus', 0.) * data['walltimehrs']
 
     # add retry hours
     data['retrytimehrs'] = data['totalwalltimehrs'] - data['walltimehrs']
