@@ -32,7 +32,7 @@ def es_generator(entries):
         add_classads(data)
         data['_index'] = options.indexname
         if options.dailyindex:
-            data['_index'] += '-'+data['date'].split('T')[0]
+            data['_index'] += '-'+(data['date'].split('T')[0].replace('-','.'))
         data['_type'] = 'job_ad'
         data['_id'] = data['GlobalJobId'].replace('#','-').replace('.','-')
         yield data
