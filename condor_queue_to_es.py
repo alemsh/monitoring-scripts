@@ -28,9 +28,9 @@ options.indexname += '-'+now.strftime("%Y.%m.%d")
 # key filter
 keys = {
     'RequestCpus','Requestgpus', 'RequestMemory', 'RequestDisk',
-    'NumJobStarts', 'NumShadowStarts', 'ClusterId', 'ProcId',
+    'NumJobStarts', 'NumShadowStarts',
     'GlobalJobId', '@timestamp', 'queue_time', 'Owner',
-    'JobStatus',
+    'JobStatus','MATCH_EXP_JOBGLIDEIN_ResourceName',
 }
 
 def es_generator(entries):
