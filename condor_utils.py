@@ -301,9 +301,10 @@ def date_from_string(s):
 
 def filter_keys(data):
     # RequestGPUs comes in many cases
-    for k in ['RequestGpus', 'RequestGPUs']:
-        if k in data:
+    for k in list(data):
+        if k.lower() == 'requestgpus' and k != 'Requestgpus':
             data['Requestgpus'] = data[k]
+            del data[k]
 
     for k in data.keys():
         if k not in good_keys:
