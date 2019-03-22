@@ -276,6 +276,33 @@ site_names = {
     'Chiba': 'JP-Chiba',
 }
 
+gpu_ns_photon = OrderedDict([
+    ('680', 44.0),
+    ('980', 22.8),
+    ('1080 ti', 7.39),
+    ('1080', 12.32),
+    ('2080 ti', 4.37),
+    ('k20', 33.01),
+    ('k40', 29.67),
+    ('k80', 23.97),
+    ('m60', 13.31),
+    ('m40', 9.20),
+    ('p100', 7.04),
+    ('p40', 5.37),
+    ('p4', 16.77),
+    ('v100', 3.02),
+])
+
+def normalize_gpu(job):
+    if 'MachineAttrGPU_NAMES0' in job:
+        gpu_name = job['MachineAttrGPU_NAMES0'].split(',')[0].lower()
+        for name in gpu_ns_photon:
+            if name in gpu_name:
+                normalize = gpu_ns_photon[name]/gpu_ns_photon['1080']
+                job['gpuhrs_normalized'] = job['gpuhrs']/normalize
+                return
+    job['gpuhrs_nonnormalized'] = job['gpuhrs']
+
 def get_site_from_domain(hostname):
     parts = hostname.lower().split('.')
     ret = None
@@ -399,6 +426,9 @@ def add_classads(data):
     # Add gpuhrs and cpuhrs
     data['gpuhrs'] = data.get('Requestgpus', 0.) * data['walltimehrs']
     data['cpuhrs'] = data.get('RequestCpus', 0.) * data['walltimehrs']
+
+    # add normalized gpu hours
+    normalize_gpu(data)
 
     # add retry hours
     data['retrytimehrs'] = data['totalwalltimehrs'] - data['walltimehrs']
