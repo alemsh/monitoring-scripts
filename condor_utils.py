@@ -352,11 +352,14 @@ def filter_keys(data):
                 logging.info('bad float/int [%s]: %r', k, data[k], exc_info=True)
                 data[k] = good_keys[k]
         elif isinstance(good_keys[k],datetime):
-            try:
-                data[k] = datetime.utcfromtimestamp(data[k]).isoformat()
-            except:
-                logging.info('bad date [%s]: %r', k, data[k], exc_info=True)
-                data[k] = zero
+            if isinstance(data[k], datetime):
+                data[k] = data[k].isoformat()
+            else:
+                try:
+                    data[k] = datetime.utcfromtimestamp(data[k]).isoformat()
+                except:
+                    logging.info('bad date [%s]: %r', k, data[k], exc_info=True)
+                    data[k] = zero
         else:
             data[k] = str(data[k])
 
