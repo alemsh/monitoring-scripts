@@ -245,6 +245,7 @@ site_names = {
     'Alberta': 'CA-Alberta',
     'parallel': 'CA-Alberta',
     'jasper': 'CA-Alberta',
+    'Illume': 'CA-Alberta',
     'illume': 'CA-Alberta',
     'illume-new': 'CA-Alberta',
     'Cedar': 'CA-SFU',
@@ -279,13 +280,17 @@ site_names = {
 
 gpu_ns_photon = OrderedDict([
     ('680', 44.0),
+    ('750 ti', 72.73),
     ('980', 22.8),
     ('1080 ti', 7.39),
     ('1080', 12.32),
     ('2080 ti', 4.37),
+    ('titan xp', 8.69),
+    ('titan x', 7.46),
     ('k20', 33.01),
     ('k40', 29.67),
     ('k80', 23.97),
+    ('m2075', 133.0), # this is a guess
     ('m60', 13.31),
     ('m40', 9.20),
     ('p100', 7.04),
@@ -302,6 +307,67 @@ def normalize_gpu(job):
                 normalize = gpu_ns_photon[name]/gpu_ns_photon['1080']
                 job['gpuhrs_normalized'] = job['gpuhrs']/normalize
                 return
+    if 'MATCH_EXP_JOBGLIDEIN_ResourceName' in job:
+        site_resource = job['MATCH_EXP_JOBGLIDEIN_ResourceName'].lower()
+        if site_resource == 'crane': # Nebraska has 
+            normalize = gpu_ns_photon['k20']/gpu_ns_photon['1080']
+            job['gpuhrs_normalized'] = job['gpuhrs']/normalize
+            return
+        elif 'su-its' in site_resource: # SU has 750 ti
+            normalize = gpu_ns_photon['750 ti']/gpu_ns_photon['1080']
+            job['gpuhrs_normalized'] = job['gpuhrs']/normalize
+            return
+        elif site_resource == 'sdsccompinfrastructure': # likely to be 1080 ti (~95% odds)
+            normalize = gpu_ns_photon['1080 ti']/gpu_ns_photon['1080']
+            job['gpuhrs_normalized'] = job['gpuhrs']/normalize
+            return
+        elif site_resource == 'ucsdt2': # comet has k80 and p100
+            normalize = (gpu_ns_photon['k80']+gpu_ns_photon['p100'])/2./gpu_ns_photon['1080']
+            job['gpuhrs_normalized'] = job['gpuhrs']/normalize
+            return
+        elif 'su-og' in site_resource: # SU has 750 ti
+            normalize = gpu_ns_photon['750 ti']/gpu_ns_photon['1080']
+            job['gpuhrs_normalized'] = job['gpuhrs']/normalize
+            return
+        elif 'aachen' in site_resource: # now has p100
+            normalize = gpu_ns_photon['p100']/gpu_ns_photon['1080']
+            job['gpuhrs_normalized'] = job['gpuhrs']/normalize
+            return
+        elif 't2b_be_iihe' in site_resource: # Tesla M2075
+            normalize = gpu_ns_photon['m2075']/gpu_ns_photon['1080']
+            job['gpuhrs_normalized'] = job['gpuhrs']/normalize
+            return
+    if 'MachineAttrGLIDEIN_SiteResource0' in job:
+        site_resource = job['MachineAttrGLIDEIN_SiteResource0'].lower()
+        if site_resource == 'umd': # UMD has 1080
+            job['gpuhrs_normalized'] = job['gpuhrs']
+            return
+        elif site_resource == 'msu': # the older msu cluster
+            normalize = gpu_ns_photon['k40']/gpu_ns_photon['1080']
+            job['gpuhrs_normalized'] = job['gpuhrs']/normalize
+            return
+    if 'LastRemoteHost' in job:
+        host = job['LastRemoteHost'].lower()
+        if host.endswith('.icecube.wisc.edu'):
+            if 'rad' in host or ('gtx' in host and int(host.split('gtx-',1)[-1].split('.',1)[0]) < 10):
+                # this is a 1080
+                job['gpuhrs_normalized'] = job['gpuhrs']
+                return
+            else:
+                # this is a 980
+                normalize = gpu_ns_photon['980']/gpu_ns_photon['1080']
+                job['gpuhrs_normalized'] = job['gpuhrs']/normalize
+                return
+        elif host.endswith('crane.hcc.unl.edu'):
+            # Nebraska has 
+            normalize = gpu_ns_photon['k20']/gpu_ns_photon['1080']
+            job['gpuhrs_normalized'] = job['gpuhrs']/normalize
+            return
+        elif host.endswith('syr.edu'): # SU has 750 ti
+            normalize = gpu_ns_photon['750 ti']/gpu_ns_photon['1080']
+            job['gpuhrs_normalized'] = job['gpuhrs']/normalize
+            return
+
     job['gpuhrs_nonnormalized'] = job['gpuhrs']
 
 def get_site_from_domain(hostname):
@@ -366,7 +432,10 @@ def filter_keys(data):
 
 def is_bad_site(data):
     if 'MATCH_EXP_JOBGLIDEIN_ResourceName' not in data:
-        return True
+        if 'MachineAttrGLIDEIN_SiteResource0' in data:
+            data['MATCH_EXP_JOBGLIDEIN_ResourceName'] = data['MachineAttrGLIDEIN_SiteResource0']
+        else:
+            return True
     site = data['MATCH_EXP_JOBGLIDEIN_ResourceName']
     if site in ('other','osgconnect','xsede-osg','WIPAC','wipac'):
         return True
@@ -421,6 +490,11 @@ def add_classads(data):
         data['walltimehrs'] = (data['LastVacateTime']-data['JobLastStartDate'])/3600.
     else:
         data['walltimehrs'] = 0.
+
+    # fix Illume-MSU mixup
+    if 'MATCH_EXP_JOBGLIDEIN_ResourceName' in data and data['MATCH_EXP_JOBGLIDEIN_ResourceName'] == 'MSU' and data['date'] <= '2019-03-30' and data['date'] >= '2018-12-01':
+        data['MATCH_EXP_JOBGLIDEIN_ResourceName'] = 'Illume'
+
     # add site
     if data['MATCH_EXP_JOBGLIDEIN_ResourceName'] in site_names:
         data['site'] = site_names[data['MATCH_EXP_JOBGLIDEIN_ResourceName']]
