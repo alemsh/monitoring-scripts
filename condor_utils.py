@@ -321,6 +321,10 @@ def normalize_gpu(job):
             normalize = gpu_ns_photon['1080 ti']/gpu_ns_photon['1080']
             job['gpuhrs_normalized'] = job['gpuhrs']/normalize
             return
+        elif site_resource == 'sdsc-prp': # likely to be 1080 ti (~95% odds)
+            normalize = gpu_ns_photon['1080 ti']/gpu_ns_photon['1080']
+            job['gpuhrs_normalized'] = job['gpuhrs']/normalize
+            return
         elif site_resource == 'ucsdt2': # comet has k80 and p100
             normalize = (gpu_ns_photon['k80']+gpu_ns_photon['p100'])/2./gpu_ns_photon['1080']
             job['gpuhrs_normalized'] = job['gpuhrs']/normalize
