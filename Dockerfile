@@ -5,8 +5,8 @@ RUN yum -y install epel-release && \
     yum install -y python-pip && \
     pip install elasticsearch htcondor requests
 
-COPY . /condor_tools
+COPY . /monitoring
 
-WORKDIR /condor_tools
+WORKDIR /monitoring
 
-ENV CONDOR_CONFIG=/condor_tools/condor_config
+ENV CONDOR_CONFIG=/monitoring/condor_config
