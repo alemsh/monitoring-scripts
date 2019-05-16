@@ -11,16 +11,9 @@ jobs:
             - run: |
                 echo 'export TAG="${CIRCLE_TAG:=latest}"' >> $BASH_ENV
             - run: |
-                docker pull $IMAGE_NAME:build-stage || echo "first build"
-            - run: |
                 docker pull $IMAGE_NAME:latest || echo "first build"
             - run: |
-                docker build --target builder -t $IMAGE_NAME:build-stage .
-            - run: |
-                docker build --target runtime -t $IMAGE_NAME:$TAG .
-            - run: |
-                echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USER" --password-stdin
-                docker push $IMAGE_NAME:build-stage
+                docker build -t $IMAGE_NAME:$TAG .
             - run: |
                 echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USER" --password-stdin
                 docker push $IMAGE_NAME:$TAG
