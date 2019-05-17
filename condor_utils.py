@@ -612,7 +612,7 @@ def add_classads(data):
 
     # add countries
     if data['MATCH_EXP_JOBGLIDEIN_ResourceName'] in countries:
-        data['country'] = country[data['MATCH_EXP_JOBGLIDEIN_ResourceName']]
+        data['country'] = countries[data['MATCH_EXP_JOBGLIDEIN_ResourceName']]
     else:
         data['country'] = 'other'
     
