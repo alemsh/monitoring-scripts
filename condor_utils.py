@@ -277,7 +277,8 @@ site_names = {
     'Japan': 'JP-Chiba',
     'Chiba': 'JP-Chiba',
     'nbi': 'DK-NBI',
-    'NBI': 'DB-NBI'
+    'NBI': 'DK-NBI',
+    'NBI_T3': 'DK-NBI'
 }
 
 countries = {
@@ -327,7 +328,8 @@ countries = {
     'Japan': 'JP',
     'Chiba': 'JP',
     'nbi': 'DK',
-    'NBI': 'DK'
+    'NBI': 'DK',
+    'NBI_T3': 'DK'
 }
 
 institutions = {
@@ -377,7 +379,8 @@ institutions = {
     'Japan': 'Chiba',
     'Chiba': 'Chiba',
     'nbi': 'NBI',
-    'NBI': 'NBI'
+    'NBI': 'NBI',
+    'NBI_T3': 'NBI'
 }
 
 gpu_ns_photon = OrderedDict([
@@ -606,6 +609,18 @@ def add_classads(data):
         data['site'] = site_names[data['MATCH_EXP_JOBGLIDEIN_ResourceName']]
     else:
         data['site'] = 'other'
+
+    # add countries
+    if data['MATCH_EXP_JOBGLIDEIN_ResourceName'] in countries:
+        data['country'] = country[data['MATCH_EXP_JOBGLIDEIN_ResourceName']]
+    else:
+        data['country'] = 'other'
+    
+    # add institution
+    if data['MATCH_EXP_JOBGLIDEIN_ResourceName'] in institutions:
+        data['institution'] = institutions[data['MATCH_EXP_JOBGLIDEIN_ResourceName']]
+    else:
+        data['institution'] = 'other'
 
     # Add gpuhrs and cpuhrs
     data['gpuhrs'] = data.get('Requestgpus', 0.) * data['walltimehrs']
