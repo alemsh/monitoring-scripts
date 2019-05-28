@@ -278,7 +278,12 @@ site_names = {
     'Chiba': 'JP-Chiba',
     'nbi': 'DK-NBI',
     'NBI': 'DK-NBI',
-    'NBI_T3': 'DK-NBI'
+    'NBI_T3': 'DK-NBI',
+    'SDSC-PRP': 'US-OSG-UCSD',
+    'SU-ITS-CE3': 'US-OSG-Syracuse',
+    'SU-ITS-CE2': 'US-OSG-Syracuse',
+    'Syracuse': 'US-OSG-Syracuse',
+    'Crane': 'US-OSG-Crane'
 }
 
 countries = {
@@ -329,7 +334,11 @@ countries = {
     'Chiba': 'JP',
     'nbi': 'DK',
     'NBI': 'DK',
-    'NBI_T3': 'DK'
+    'NBI_T3': 'DK',
+    'SDSC-PRP': 'US',
+    'SU-ITS-CE3': 'US',
+    'SU-ITS-CE2': 'US',
+    'OSG-Crane': 'US'
 }
 
 institutions = {
@@ -363,11 +372,11 @@ institutions = {
     'LIDO3_Dortmund_TEST': 'Dortmund',
     'UKI-NORTHGRID-MAN-HEP': 'QML',
     'UKI-LT2-QMUL': 'QML',
-    'Bridges': 'UW',
-    'Comet': 'UW',
-    'HOSTED_STANFORD': 'UW',
-    'Xstream': 'UW',
-    'xstream': 'UW',
+    'Bridges': 'XSEDE',
+    'Comet': 'XSEDE',
+    'HOSTED_STANFORD': 'OSG',
+    'Xstream': 'XSEDE',
+    'xstream': 'XSEDE',
     'NPX': 'UW',
     'GZK': 'UW',
     'CHTC': 'UW',
@@ -380,7 +389,11 @@ institutions = {
     'Chiba': 'Chiba',
     'nbi': 'NBI',
     'NBI': 'NBI',
-    'NBI_T3': 'NBI'
+    'NBI_T3': 'NBI',
+    'SDSC-PRP': 'OSG',
+    'SU-ITS-CE3': 'OSG',
+    'SU-ITS-CE2': 'OSG',
+    'OSG-Crane': 'OSG'
 }
 
 gpu_ns_photon = OrderedDict([
