@@ -261,11 +261,11 @@ site_names = {
     'LIDO3_Dortmund_TEST': 'DE-Dortmund',
     'UKI-NORTHGRID-MAN-HEP': 'UK-Manchester',
     'UKI-LT2-QMUL': 'UK-Manchester',
-    'Bridges': 'XSEDE-Bridges',
-    'Comet': 'XSEDE-Comet',
+    'Bridges': 'US-XSEDE-PSC',
+    'Comet': 'US-XSEDE-SDSC',
     'HOSTED_STANFORD': 'XSEDE-XStream',
-    'Xstream': 'XSEDE-XStream',
-    'xstream': 'XSEDE-XStream',
+    'Xstream': 'US-XSEDE-Stanford',
+    'xstream': 'US-XSEDE-Stanford',
     'NPX': 'US-NPX',
     'GZK': 'US-GZK',
     'CHTC': 'US-CHTC',
@@ -283,7 +283,13 @@ site_names = {
     'SU-ITS-CE3': 'US-OSG-Syracuse',
     'SU-ITS-CE2': 'US-OSG-Syracuse',
     'Syracuse': 'US-OSG-Syracuse',
-    'Crane': 'US-OSG-Crane'
+    'Crane': 'US-OSG-Crane',
+    'UCSDT2': 'US-OSG-UCSDT2',
+    'BNL-ATLAS': 'US-OSG-BNL-ATLAS',
+    'CIT_CMS_T2': 'US-OSG-Caltech-HEP',
+    'Indiana': 'US-OSG-MWT2',
+    'Stampede2': 'US-XSEDE-TACC',
+    'Clemson-Palmetto': 'US-OSG-Clemson'
 }
 
 countries = {
@@ -338,7 +344,13 @@ countries = {
     'SDSC-PRP': 'US',
     'SU-ITS-CE3': 'US',
     'SU-ITS-CE2': 'US',
-    'OSG-Crane': 'US'
+    'Crane': 'US',
+    'UCSDT2': 'US',
+    'BNL-ATLAS': 'US',
+    'CIT_CMS_T2': 'US',
+    'Indiana': 'US',
+    'Stampede2': 'US',
+    'Clemson-Palmetto': 'US'
 }
 
 institutions = {
@@ -393,7 +405,13 @@ institutions = {
     'SDSC-PRP': 'OSG',
     'SU-ITS-CE3': 'OSG',
     'SU-ITS-CE2': 'OSG',
-    'OSG-Crane': 'OSG'
+    'Crane': 'OSG',
+    'UCSDT2': 'OSG',
+    'BNL-ATLAS': 'OSG',
+    'CIT_CMS_T2': 'OSG',
+    'Indiana': 'OSG',
+    'Stampede2': 'XSEDE',
+    'Clemson-Palmetto': 'OSG'
 }
 
 gpu_ns_photon = OrderedDict([
