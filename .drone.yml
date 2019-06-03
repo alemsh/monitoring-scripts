@@ -1,0 +1,13 @@
+kind: pipeline
+name: default
+
+steps:
+- name: docker
+  image: plugins/docker
+  settings:
+    repo: wipac/monitoring-scripts
+    auto_tag: true
+    username:
+      from_secret: DOCKERHUB_USER
+    password:
+      from_secret: DOCKERHUB_PASS
