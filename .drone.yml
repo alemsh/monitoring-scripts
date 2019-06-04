@@ -5,6 +5,8 @@ steps:
 - name: docker-pull
   image: docker:dind
   privileged: true
+  volumes:
+  - /var/run/docker.sock:/var/run/docker.sock
   commands:
   - docker pull wipac/monitoring-scripts:latest
 
