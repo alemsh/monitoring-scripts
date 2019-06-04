@@ -8,19 +8,18 @@ steps:
   volumes:
   - name: dockersock
     path: /var/run/docker.sock
-  commands:
-  - docker pull wipac/monitoring-scripts:latest
-
-- name: docker
-  image: plugins/docker
-  settings:
-    repo: wipac/monitoring-scripts
-    auto_tag: true
-    purge: false
-    username:
+  environment:
+    IMAGE_NAME: wipac/monitoring-scripts
+    DOCKERHUB_USER:
       from_secret: DOCKERHUB_USER
-    password:
+    DOCKERHUB_PASS:
       from_secret: DOCKERHUB_PASS
+  commands:
+  - export TAG="${DRONE_TAG:=latest}"
+  - docker pull $IMAGE_NAME:latest || echo "first build"
+  - docker build -t $IMAGE_NAME:$TAG
+  - echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USER" --password-stdin
+  - docker push $IMAGE_NAME:$TAG
 
 volumes:
 - name: dockersock
