@@ -12,4 +12,4 @@ steps:
     password:
       from_secret: DOCKERHUB_PASS
   commands:
-  - git pull wipac/monitoring-scripts:latest
+  - docker pull wipac/monitoring-scripts:latest
