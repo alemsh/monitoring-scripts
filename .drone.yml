@@ -6,8 +6,11 @@ steps:
   image: plugins/docker
   settings:
     repo: wipac/monitoring-scripts
-    auto_tag: true
+    tags: latest
     username:
       from_secret: DOCKERHUB_USER
     password:
       from_secret: DOCKERHUB_PASS
+  when:
+    branch:
+    - master
