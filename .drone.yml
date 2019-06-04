@@ -6,7 +6,8 @@ steps:
   image: docker:dind
   privileged: true
   volumes:
-  - /var/run/docker.sock:/var/run/docker.sock
+  - name: dockersock
+    path: /var/run/docker.sock
   commands:
   - docker pull wipac/monitoring-scripts:latest
 
@@ -19,3 +20,8 @@ steps:
       from_secret: DOCKERHUB_USER
     password:
       from_secret: DOCKERHUB_PASS
+
+volumes:
+- name: dockersock
+  host:
+    path: /var/run/docker.sock
