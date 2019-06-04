@@ -3,11 +3,11 @@ name: default
 
 steps:
 - name: docker-pull
-  image: plugins/docker
+  image: docker:dind
   privileged: true
   commands:
   - docker pull wipac/monitoring-scripts:latest
-  
+
 - name: docker
   image: plugins/docker
   settings:
