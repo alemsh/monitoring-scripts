@@ -35,6 +35,8 @@ def es_generator(entries):
             data['_index'] += '-'+(data['date'].split('T')[0].replace('-','.'))
         data['_type'] = 'job_ad'
         data['_id'] = data['GlobalJobId'].replace('#','-').replace('.','-')
+        if not data['_id']:
+            continue
         yield data
 
 from elasticsearch import Elasticsearch
