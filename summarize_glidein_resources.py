@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 Aggregate machine ads into time bins by site
@@ -23,7 +23,7 @@ def parse_timedelta(time_str):
     if not parts:
         raise ValueError
     parts = parts.groupdict()
-    if not any([v is not None for v in parts.values()]):
+    if not any([v is not None for v in list(parts.values())]):
         raise ValueError
     time_params = {}
     for (name, param) in parts.items():

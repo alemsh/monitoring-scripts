@@ -1,9 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 Aggregate site info from ES, and make an html map.
 """
 
-from __future__ import print_function
+
 import os
 import glob
 from optparse import OptionParser
@@ -136,7 +136,7 @@ def draw_mpl_map(glideinwms, pyglidein, title='Glidein', outfile='map.png'):
                 #raise
                 lats = [43.0731, site_locs[s][0]]
                 lons = [-89.4012, site_locs[s][1]]
-                xx, yy = map(lons, lats)  
+                xx, yy = list(map(lons, lats))  
                 map.plot(xx, yy, linewidth=1, color='#40E0D0', label='GlideinWMS' if i==0 else '_nolegend_')
     for i,s in enumerate(pyglidein):
         if s in site_locs and site_locs[s] != (43.0731, -89.4012):
@@ -149,7 +149,7 @@ def draw_mpl_map(glideinwms, pyglidein, title='Glidein', outfile='map.png'):
                 #raise
                 lats = [43.0731, site_locs[s][0]]
                 lons = [-89.4012, site_locs[s][1]]
-                xx, yy = map(lons, lats)  
+                xx, yy = list(map(lons, lats))  
                 map.plot(xx, yy, linestyle='--', linewidth=1, color='#FFA500', label='Pyglidein' if i==0 else '_nolegend_')
     
     plt.title(title)
