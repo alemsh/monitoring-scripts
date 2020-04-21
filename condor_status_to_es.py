@@ -77,7 +77,7 @@ if options.verbose:
 
 # note different capitalization conventions for GPU and Cpu
 RESOURCES = ("GPUs", "Cpus", "Memory", "Disk")
-STATUSES = ("evicted", "removed", "finished")
+STATUSES = ("evicted", "removed", "finished", "failed")
 
 
 def update_machines(entries):
@@ -128,7 +128,10 @@ def update_jobs(entries, history=False):
         if history:
             t0 = hit["JobCurrentStartDate"]
         else:
-            t0 = hit["JobLastStartDate"]
+            if hit["JobStatus"] == 5:
+                t0 = hit["JobCurrentStartDate"]
+            else:
+                t0 = hit["JobLastStartDate"]
         ms = ms.add(
             Search()
             .filter("term", Name__keyword=parent_slot_name(hit["LastRemoteHost"]))
@@ -143,12 +146,23 @@ def update_jobs(entries, history=False):
         if history:
             if hit["JobStatus"] == 3:
                 category = "removed"
-            else:
+            elif hit["ExitCode"] == 0:
                 category = "finished"
+            else:
+                category = "failed"
             walltime = float(hit["EnteredCurrentStatus"] - hit["JobCurrentStartDate"])
         else:
-            walltime = float(hit["LastVacateTime"] - hit["JobLastStartDate"])
-            category = "evicted"
+            # NB: if a job is evicted from one slot, held on another, and then
+            # removed from the queue, there's no way to recover the time that
+            # may have elapsed between hold and removal. To handle this case,
+            # we treat held jobs as a subcategory of removed jobs, so that they
+            # will not be counted again when encountered in the history.
+            if hit["JobStatus"] == 5:
+                walltime = float(hit["EnteredCurrentStatus"] - hit["JobCurrentStartDate"])
+                category = "removed"
+            else:
+                walltime = float(hit["LastVacateTime"] - hit["JobLastStartDate"])
+                category = "evicted"
 
         # normalize capitalization of requests
         requests = {resource: 0 for resource in RESOURCES}
@@ -196,7 +210,7 @@ def es_import(document_generator):
 machine_ad = edsl.Mapping.from_es(
     doc_type="machine_ad", index=options.indexname, using=es
 )
-if not "claims" in machine_ad:
+if not "claims" in machine_ad or not "failed" in machine_ad.to_dict()['machine_ad']['properties']['claims']['properties']:
     machine_ad.field(
         "jobs",
         edsl.Object(properties={status: edsl.Text(multi=True) for status in STATUSES}),
@@ -212,7 +226,6 @@ if not "claims" in machine_ad:
             }
         ),
     )
-    machine_ad.save(options.indexname, using=es)
     machine_ad.field(
         "occupancy",
         edsl.Object(
@@ -242,19 +255,19 @@ if not "claims" in machine_ad:
                     if(ctx._source["jobs."+params.category] == null) {
                         ctx._source["jobs."+params.category] = [];
                         for (resource in RESOURCES) {
-                            ctx._source["claims."+params.category+"."+resource] = 0;
+                            ctx._source["claims."+params.category+"."+resource] = 0.0;
                         }
                     }
                     if(!ctx._source["jobs."+params.category].contains(params.job)) {
                         ctx._source["jobs."+params.category].add(params.job);
                         for (resource in RESOURCES) {
                             if (params.requests.containsKey(resource)) {
-                                ctx._source["claims."+params.category+"."+resource] += params.requests[resource];
+                                ctx._source["claims."+params.category+"."+resource] += params.requests[resource].doubleValue();
                             }
                             if (!ctx._source.containsKey("Total"+resource) || ctx._source.duration == null) {
                                 continue;
                             }
-                            double norm = (ctx._source.duration*ctx._source["Total"+resource]).doubleValue();
+                            double norm = (ctx._source.duration.doubleValue())*(ctx._source["Total"+resource].doubleValue());
                             if (!(norm > 0)) {
                                 continue;
                             }
@@ -306,7 +319,7 @@ if not "claims" in machine_ad:
                             if (!ctx._source.containsKey("Total"+resource)) {
                                 continue;
                             }
-                            double norm = (ctx._source.duration*ctx._source["Total"+resource]).doubleValue();
+                            double norm = (ctx._source.duration.doubleValue())*(ctx._source["Total"+resource].doubleValue());
                             if (!(norm > 0)) {
                                 continue;
                             }
@@ -340,17 +353,22 @@ for coll_address in options.collectors:
     )
     success = es_import(gen)
 
-    # Update claims from evicted jobs
+    # Update claims from evicted and held jobs
+    after = time.mktime((datetime.now() - timedelta(minutes=10)).timetuple())
     gen = update_jobs(
         read_from_collector(
             coll_address,
-            constraint="(LastVacateTime > {}) && ((LastVacateTime-JobLastStartDate))>60".format(
-                time.mktime((datetime.now() - timedelta(minutes=10)).timetuple())
-            ),
+            constraint=(
+                "((LastVacateTime > {}) && ((LastVacateTime-JobLastStartDate))>60)"
+                + " || ((JobStatus == 5) && (EnteredCurrentStatus > {}))"
+            ).format(after, after),
             projection=[
                 "GlobalJobId",
                 "NumJobStarts",
+                "JobStatus",
                 "JobLastStartDate",
+                "JobCurrentStartDate",
+                "EnteredCurrentStatus",
                 "LastVacateTime",
                 "LastRemoteHost",
             ]
@@ -372,6 +390,7 @@ for coll_address in options.collectors:
                 "JobCurrentStartDate",
                 "EnteredCurrentStatus",
                 "JobStatus",
+                "ExitCode",
                 "LastRemoteHost",
             ]
             + ["Request" + resource for resource in RESOURCES],
