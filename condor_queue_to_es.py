@@ -37,7 +37,7 @@ keys = {
 def es_generator(entries):
     for data in entries:
         add_classads(data)
-        data = {k:data[k] for k in keys} # do filtering
+        data = {k:data[k] for k in keys if k in data} # do filtering
         data['_index'] = options.indexname
         data['_type'] = 'job_ad'
         data['_id'] = data['GlobalJobId'].replace('#','-').replace('.','-') + data['@timestamp']
