@@ -31,6 +31,7 @@ keys = {
     'NumJobStarts', 'NumShadowStarts',
     'GlobalJobId', '@timestamp', 'queue_time', 'Owner',
     'JobStatus','MATCH_EXP_JOBGLIDEIN_ResourceName',
+    'IceProdDataset', 'IceProdTaskName'
 }
 
 def es_generator(entries):
