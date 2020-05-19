@@ -187,7 +187,6 @@ reserved_domains = {
     'bridges.psc.edu': 'Bridges',
     'campuscluster.illinois.edu': 'Illinois',
     'cl.iit.edu': 'MWT2',
-    'cm.cluster': 'LIDO_Dortmund',
     'cmsaf.mit.edu': 'MIT',
     'colorado.edu': 'Colorado',
     'cpp.ualberta.ca': 'Alberta',
