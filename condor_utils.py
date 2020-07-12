@@ -354,6 +354,7 @@ gpu_ns_photon = OrderedDict([
     ('p40', 5.37),
     ('p4', 16.77),
     ('v100', 3.02),
+    ('Quadro RTX 5000', 4.63),
 ])
 
 def normalize_gpu(job, key='gpuhrs',
