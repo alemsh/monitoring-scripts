@@ -199,6 +199,7 @@ reserved_domains = {
     'ec2.internal': 'AWS',
     'ember.arches': 'Utah',
     'fnal.gov': 'USCMS-FNAL-WC1',
+    'frontera.tacc.utexas.edu': 'Frontera',
     'grid.tu-dortmund.de': 'LIDO_Dortmund',
     'guillimin.clumeq.ca': 'Guillimin',
     'hcc.unl.edu': 'Crane',
@@ -224,6 +225,7 @@ reserved_domains = {
     'rcac.purdue.edu': 'Purdue-Hadoop',
     'research.northwestern.edu': 'NUMEP-OSG',
     'sdsc.edu': 'Comet',
+    'stampede2.tacc.utexas.edu': 'Stampede2',
     'stat.wisc.edu': 'CHTC',
     't2.ucsd.edu': 'UCSDT2',
     'tier3.ucdavis.edu':'UCD',
@@ -304,6 +306,7 @@ def get_site_from_resource(resource):
         'SLATE_US_UUTAH_KINGSPEAK': 'US-OSG-UUTAH',
         'SLATE_US_UUTAH_LONEPEAK': 'US-OSG-UUTAH',
         'SLATE_US_UUTAH_NOTCHPEAK': 'US-OSG-UUTAH',
+        'Frontera': 'US-LCC-TACC',
     }
     if resource in site_names:
         return site_names[resource]
