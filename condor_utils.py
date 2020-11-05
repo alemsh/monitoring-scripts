@@ -202,6 +202,7 @@ reserved_domains = {
     'frontera.tacc.utexas.edu': 'Frontera',
     'grid.tu-dortmund.de': 'LIDO_Dortmund',
     'guillimin.clumeq.ca': 'Guillimin',
+    'rc.fas.harvard.edu': 'Harvard',
     'hcc.unl.edu': 'Crane',
     'hep.caltech.edu': 'CIT_CMS_T2',
     'hep.int': 'osgconnect',
@@ -320,6 +321,7 @@ def get_site_from_resource(resource):
         'SLATE_US_UUTAH_LONEPEAK': 'US-OSG-UUTAH',
         'SLATE_US_UUTAH_NOTCHPEAK': 'US-OSG-UUTAH',
         'Frontera': 'US-LCC-TACC',
+        'Harvard': 'US-Harvard'
     }
     if resource in site_names:
         return site_names[resource]
