@@ -200,6 +200,7 @@ reserved_domains = {
     'ember.arches': 'Utah',
     'fnal.gov': 'USCMS-FNAL-WC1',
     'frontera.tacc.utexas.edu': 'Frontera',
+    'gridka.de': 'KIT',
     'grid.tu-dortmund.de': 'LIDO_Dortmund',
     'guillimin.clumeq.ca': 'Guillimin',
     'rc.fas.harvard.edu': 'Harvard',
@@ -321,7 +322,8 @@ def get_site_from_resource(resource):
         'SLATE_US_UUTAH_LONEPEAK': 'US-OSG-UUTAH',
         'SLATE_US_UUTAH_NOTCHPEAK': 'US-OSG-UUTAH',
         'Frontera': 'US-LCC-TACC',
-        'Harvard': 'US-Harvard'
+        'Harvard': 'US-Harvard',
+        'KIT': 'DE-KIT'
     }
     if resource in site_names:
         return site_names[resource]
