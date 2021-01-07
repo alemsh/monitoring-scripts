@@ -353,25 +353,32 @@ def get_institution_from_site(site):
 
 # pre-estimated values
 gpu_ns_photon = OrderedDict([
-    ('680', 44.0),
-    ('750 ti', 72.73),
-    ('980', 22.8),
-    ('1080 ti', 7.39),
-    ('1080', 12.32),
-    ('2080 ti', 4.37),
-    ('titan xp', 8.69),
-    ('titan x', 7.46),
-    ('k20', 33.01),
-    ('k40', 29.67),
-    ('k80', 23.97),
-    ('m2075', 133.0), # this is a guess
-    ('m60', 13.31),
-    ('m40', 9.20),
-    ('p100', 7.04),
-    ('p40', 5.37),
-    ('p4', 16.77),
-    ('v100', 3.02),
-    ('Quadro RTX 5000', 4.63),
+    ('680', 44.0), # not recently tested
+    ('750 ti', 72.73), # not recently tested
+    ('980', 18.22),
+    ('1080 ti', 7.12),
+    ('1080', 9.97),
+    ('2080 ti', 3.90),
+    ('titan v', 40.0), # not recently tested
+    ('titan xp', 6.91),
+    ('titan x', 7.49),
+    ('k20', 33.01), # not recently tested
+    ('k40', 29.67), # not recently tested
+    ('k80', 29.7),
+    ('m2075', 133.0), # not recently tested
+    ('m60', 13.31), # not recently tested
+    ('m40', 9.20), # not recently tested
+    ('p100-sxm2', 7.46),
+    ('p100', 8.37),
+    ('p40', 5.37), # not recently tested
+    ('p4', 17.2),
+    ('v100-sxm2', 4.94),
+    ('v100', 5.49),
+    ('a100-sxm2', 2.58),
+    ('a100', 2.60),
+    ('quadro rtx 5000', 4.63), # not recently tested
+    ('quadro rtx 6000', 4.37),
+    ('quadro rtx 8000', 3.74),
 ])
 
 def normalize_gpu(job, key='gpuhrs',
