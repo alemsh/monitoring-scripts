@@ -239,92 +239,105 @@ reserved_domains = {
     'zeuthen.desy.de': 'DESY-ZN',
 }
 
+site_names = {
+    'Brussels': 'BE-IIHE',
+    'T2B_BE_IIHE': 'BE-IIHE',
+    'BEgrid-ULB-VUB': 'BE-IIHE',
+    'Guillimin': 'CA-McGill',
+    'CA-MCGILL-CLUMEQ-T2': 'CA-McGill',
+    'CA-SCINET-T2': 'CA-Toronto',
+    'Alberta': 'CA-Alberta',
+    'parallel': 'CA-Alberta',
+    'jasper': 'CA-Alberta',
+    'Illume': 'CA-Alberta',
+    'illume': 'CA-Alberta',
+    'illume-new': 'CA-Alberta',
+    'CYBERA_EDMONTON': 'CA-Alberta',
+    'Cedar': 'CA-SFU',
+    'ComputeCanada-Cedar': 'CA-SFU',
+    'DE_RWTH': 'DE-Aachen',
+    'RWTH-Aachen': 'DE-Aachen',
+    'RWTHaachen': 'DE-Aachen',
+    'aachen': 'DE-Aachen',
+    'DESY-ZN': 'DE-DESY',
+    'DESY-HH': 'DE-DESY',
+    'DESY': 'DE-DESY',
+    'UNI-DORTMUND': 'DE-Dortmund',
+    'LIDO_Dortmund': 'DE-Dortmund',
+    'PHIDO_Dortmund': 'DE-Dortmund',
+    'LIDO3_Dortmund_TEST': 'DE-Dortmund',
+    'LiDO3_Dortmund': 'DE-Dortmund',
+    'KIT': 'DE-KIT',
+    'mainzgrid': 'DE-Mainz',
+    'mainz': 'DE-Mainz',
+    'Mainz_MogonI': 'DE-Mainz',
+    'TUM': 'DE-Munich',
+    'wuppertalprod': 'DE-Wuppertal',
+    'nbi': 'DK-NBI',
+    'NBI': 'DK-NBI',
+    'NBI_T3': 'DK-NBI',
+    'Japan': 'JP-Chiba',
+    'Chiba': 'JP-Chiba',
+    'Uppsala': 'SE-Uppsala',
+    'UKI-NORTHGRID-MAN-HEP': 'UK-Manchester',
+    'UKI-LT2-QMUL': 'UK-Manchester',
+    'Bartol': 'US-Bartol',
+    'Bridges': 'US-XSEDE-PSC',
+    'Bridges-2': 'US-XSEDE-PSC',
+    'JetStream': 'US-XSEDE-JetStream',
+    'Comet': 'US-XSEDE-SDSC',
+    'Expanse': 'US-XSEDE-SDSC',
+    'HOSTED_STANFORD': 'US-XSEDE-Stanford',
+    'Xstream': 'US-XSEDE-Stanford',
+    'xstream': 'US-XSEDE-Stanford',
+    'Stampede2': 'US-XSEDE-TACC',
+    'Frontera': 'US-LCC-TACC',
+    'NERSC': 'US-NERSC',
+    'CHTC': 'US-CHTC',
+    'Local Job': 'US-CHTC',
+    'GZK': 'US-GZK',
+    'Harvard': 'US-Harvard',
+    'Marquette': 'US-Marquette',
+    'MSU': 'US-MSU',
+    'msu': 'US-MSU',
+    'MSU-dedicated': 'US-MSU',
+    'NPX': 'US-NPX',
+    'PSU': 'US-PSU',
+    'UMD': 'US-UMD',
+    'BNL': 'US-OSG-BNL',
+    'BNL-ATLAS': 'US-OSG-BNL',
+    'CIT_CMS_T2': 'US-OSG-Caltech',
+    'Clemson-Palmetto': 'US-OSG-Clemson',
+    'UColorado_HEP': 'US-OSG-Colorado',
+    'Colorado': 'US-OSG-Colorado',
+    'Crane': 'US-OSG-Crane',
+    'GPGrid': 'US-OSG-FNAL',
+    'USCMS-FNAL-WC1': 'US-OSG-FNAL',
+    'Illinois': 'US-OSG-Illinois',
+    'Indiana': 'US-OSG-MWT2',
+    'IIT_CE2':  'US-OSG-MWT2',
+    'MWT2':  'US-OSG-MWT2',
+    'Nebraska': 'US-OSG-Nebraska',
+    'SPRACE': 'US-OSG-SPRACE',
+    'SLATE_US_UIUC_HTC': 'US-OSG-UIUC',
+    'LSU-DB-CE1': 'US-OSG-LSU',
+    'OU_OCHEP_SWT2': 'US-OSG-OU',
+    'SU-ITS': 'US-OSG-Syracuse',
+    'SU-ITS-CE3': 'US-OSG-Syracuse',
+    'SU-ITS-CE2': 'US-OSG-Syracuse',
+    'Syracuse': 'US-OSG-Syracuse',
+    'UConn-OSG': 'US-OSG-UConn',
+    'SDSC-PRP': 'US-OSG-UCSD',
+    'UCSDT2': 'US-OSG-UCSD',
+    'SLATE_US_UUTAH_KINGSPEAK': 'US-OSG-Utah',
+    'SLATE_US_UUTAH_LONEPEAK': 'US-OSG-Utah',
+    'SLATE_US_UUTAH_NOTCHPEAK': 'US-OSG-Utah',
+    'OSG_US_WSU_GRID_ce2': 'US-OSG-WSU',
+    'WSU - GRID_ce2': 'US-OSG-WSU',
+    'WSU-GRID': 'US-OSG-WSU',
+}
+
 def get_site_from_resource(resource):
-    site_names = {
-        'DESY-ZN': 'DE-DESY',
-        'DESY-HH': 'DE-DESY',
-        'DESY': 'DE-DESY',
-        'Brussels': 'BE-IIHE',
-        'T2B_BE_IIHE': 'BE-IIHE',
-        'BEgrid-ULB-VUB': 'BE-IIHE',
-        'Guillimin': 'CA-McGill',
-        'CA-MCGILL-CLUMEQ-T2': 'CA-McGill',
-        'mainz': 'DE-Mainz',
-        'mainzgrid': 'DE-Mainz',
-        'Mainz_MogonI': 'DE-Mainz',
-        'CA-SCINET-T2': 'CA-Toronto',
-        'Alberta': 'CA-Alberta',
-        'parallel': 'CA-Alberta',
-        'jasper': 'CA-Alberta',
-        'Illume': 'CA-Alberta',
-        'illume': 'CA-Alberta',
-        'illume-new': 'CA-Alberta',
-        'CYBERA_EDMONTON': 'CA-Alberta',
-        'Cedar': 'CA-SFU',
-        'DE_RWTH': 'DE-Aachen',
-        'RWTH-Aachen': 'DE-Aachen',
-        'RWTHaachen': 'DE-Aachen',
-        'aachen': 'DE-Aachen',
-        'wuppertalprod': 'DE-Wuppertal',
-        'TUM': 'DE-Munich',
-        'Uppsala': 'SE-Uppsala',
-        'Bartol': 'US-Bartol',
-        'UNI-DORTMUND': 'DE-Dortmund',
-        'LIDO_Dortmund': 'DE-Dortmund',
-        'PHIDO_Dortmund': 'DE-Dortmund',
-        'LIDO3_Dortmund_TEST': 'DE-Dortmund',
-        'LiDO3_Dortmund': 'DE-Dortmund',
-        'UKI-NORTHGRID-MAN-HEP': 'UK-Manchester',
-        'UKI-LT2-QMUL': 'UK-Manchester',
-        'Bridges': 'US-XSEDE-PSC',
-        'Comet': 'US-XSEDE-SDSC',
-        'HOSTED_STANFORD': 'XSEDE-XStream',
-        'Xstream': 'US-XSEDE-Stanford',
-        'xstream': 'US-XSEDE-Stanford',
-        'NPX': 'US-NPX',
-        'GZK': 'US-GZK',
-        'CHTC': 'US-CHTC',
-        'Marquette': 'US-Marquette',
-        'UMD': 'US-UMD',
-        'MSU': 'US-MSU',
-        'msu': 'US-MSU',
-        'MSU-dedicated': 'US-MSU',
-        'PSU': 'US-PSU',
-        'Japan': 'JP-Chiba',
-        'Chiba': 'JP-Chiba',
-        'nbi': 'DK-NBI',
-        'NBI': 'DK-NBI',
-        'NBI_T3': 'DK-NBI',
-        'SDSC-PRP': 'US-OSG-UCSD',
-        'UCSDT2': 'US-OSG-UCSD',
-        'SU-ITS': 'US-OSG-Syracuse',
-        'SU-ITS-CE3': 'US-OSG-Syracuse',
-        'SU-ITS-CE2': 'US-OSG-Syracuse',
-        'Syracuse': 'US-OSG-Syracuse',
-        'Crane': 'US-OSG-Crane',
-        'BNL': 'US-OSG-BNL-ATLAS',
-        'BNL-ATLAS': 'US-OSG-BNL-ATLAS',
-        'CIT_CMS_T2': 'US-OSG-Caltech-HEP',
-        'OSG_US_WSU_GRID_ce2': 'US-OSG-WSU',
-        'WSU - GRID_ce2': 'US-OSG-WSU',
-        'Indiana': 'US-OSG-MWT2',
-        'IIT_CE2':  'US-OSG-MWT2',
-        'MWT2':  'US-OSG-MWT2',
-        'GPGrid': 'US-OSG-FNAL',
-        'USCMS-FNAL-WC1': 'US-OSG-FNAL',
-        'Stampede2': 'US-XSEDE-TACC',
-        'Clemson-Palmetto': 'US-OSG-Clemson',
-        'UColorado_HEP': 'US-OSG-Colorado',
-        'UConn-OSG': 'US-OSG-UConn',
-        'SPRACE': 'US-OSG-SPRACE',
-        'SLATE_US_UIUC_HTC': 'US-OSG-UIUC',
-        'SLATE_US_UUTAH_KINGSPEAK': 'US-OSG-UUTAH',
-        'SLATE_US_UUTAH_LONEPEAK': 'US-OSG-UUTAH',
-        'SLATE_US_UUTAH_NOTCHPEAK': 'US-OSG-UUTAH',
-        'Frontera': 'US-LCC-TACC',
-        'Harvard': 'US-Harvard',
-        'KIT': 'DE-KIT'
-    }
     if resource in site_names:
         return site_names[resource]
     elif resource.startswith('SLATE'):
@@ -559,13 +572,14 @@ def filter_keys(data):
             data[k] = str(data[k])
 
 def is_bad_site(data, site_key='MATCH_EXP_JOBGLIDEIN_ResourceName'):
-    if site_key not in data:
+    bad_sites = ('other','osgconnect','xsede-osg','WIPAC','wipac')
+    if site_key not in data or data[site_key] not in site_names or data[site_key] in bad_sites:
         if 'MachineAttrGLIDEIN_SiteResource0' in data:
             data[site_key] = data['MachineAttrGLIDEIN_SiteResource0']
         else:
             return True
     site = data[site_key]
-    if site in ('other','osgconnect','xsede-osg','WIPAC','wipac'):
+    if site in bad_sites:
         return True
     if '.' in site:
         return True
@@ -580,17 +594,6 @@ def add_classads(data):
         data (dict): a classad dict for a single job
     """
     filter_keys(data)
-    # fix site
-    bad_site = is_bad_site(data)
-    if bad_site:
-        if 'LastRemoteHost' in data:
-            site = get_site_from_domain(data['LastRemoteHost'].split('@')[-1])
-            if site:
-                data[site_key] = site
-            elif 'StartdPrincipal' in data:
-                site = get_site_from_ip_range(data['StartdPrincipal'].split('/')[-1])
-                if site:
-                    data[site_key] = site
 
     data['@timestamp'] = datetime.utcnow().isoformat()
     # add completion date
@@ -624,7 +627,19 @@ def add_classads(data):
         data[site_key] = 'Illume'
 
     # add site
-    data['site'] = get_site_from_resource(data[site_key])
+    if is_bad_site(data, site_key):
+        site = get_site_from_domain(data['Name'].split('@')[-1])
+        if site:
+            data['site'] = site
+        else:
+            ip = re.match(r'.*?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}).*', data['AddressV1']).group(1)
+            site = get_site_from_ip_range(ip)
+            if site:
+                data['site'] = site
+            else:
+                data['site'] = 'other'
+    else:
+        data['site'] = get_site_from_resource(data[site_key])
 
     # add countries
     data['country'] = get_country_from_site(data['site'])
