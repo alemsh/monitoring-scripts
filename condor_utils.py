@@ -642,7 +642,7 @@ def add_classads(data):
             if site:
                 data['site'] = site
             elif 'StartdPrincipal' in data:
-                ip = re.match(r'.*?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}).*', data['StartdPrincipal']).group(1)
+                ip = data['StartdPrincipal'].split('/')[-1]
                 site = get_site_from_ip_range(ip)
                 if site:
                     data['site'] = site
