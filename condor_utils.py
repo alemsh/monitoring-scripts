@@ -346,6 +346,47 @@ def get_site_from_resource(resource):
     else:
         return 'other'
 
+def get_site_from_domain(hostname):
+    parts = hostname.lower().split('.')
+    ret = None
+    if '.'.join(parts[-3:]) in reserved_domains:
+        ret = reserved_domains['.'.join(parts[-3:])]
+    elif '.'.join(parts[-2:]) in reserved_domains:
+        ret = reserved_domains['.'.join(parts[-2:])]
+    if ret:
+        ret2 = get_site_from_resource(ret)
+        if ret2 != 'other':
+            return ret2
+    return ret
+
+def get_site_from_ip_range(ip):
+    parts = ip.split('.')
+    ret = None
+    if len(parts) == 4 and all(p.isdigit() for p in parts):
+        if '.'.join(parts[:2]) in reserved_ips:
+            ret = reserved_ips['.'.join(parts[:2])]
+    if ret:
+        ret2 = get_site_from_resource(ret)
+        if ret2 != 'other':
+            return ret2
+    return ret
+
+def is_bad_site(data, site_key='MATCH_EXP_JOBGLIDEIN_ResourceName'):
+    bad_sites = ('other','osgconnect','xsede-osg','WIPAC','wipac')
+    if site_key not in data or data[site_key] not in site_names or data[site_key] in bad_sites:
+        if 'MachineAttrGLIDEIN_SiteResource0' in data:
+            data[site_key] = data['MachineAttrGLIDEIN_SiteResource0']
+        else:
+            return True
+    site = data[site_key]
+    if site in bad_sites:
+        return True
+    if '.' in site:
+        return True
+    if site.startswith('gzk9000') or site.startswith('gzk-'):
+        return True
+    return False
+
 def get_country_from_site(site):
     if site == 'other':
         return 'other'
@@ -511,23 +552,6 @@ def normalize_gpu(job, key='gpuhrs',
 
     job[nonnorm_key] = job[raw_key]
 
-def get_site_from_domain(hostname):
-    parts = hostname.lower().split('.')
-    ret = None
-    if '.'.join(parts[-3:]) in reserved_domains:
-        ret = reserved_domains['.'.join(parts[-3:])]
-    elif '.'.join(parts[-2:]) in reserved_domains:
-        ret = reserved_domains['.'.join(parts[-2:])]
-    return ret
-
-def get_site_from_ip_range(ip):
-    parts = ip.split('.')
-    ret = None
-    if len(parts) == 4 and all(p.isdigit() for p in parts):
-        if '.'.join(parts[:2]) in reserved_ips:
-            ret = reserved_ips['.'.join(parts[:2])]
-    return ret
-
 def date_from_string(s):
     if '.' in s:
         return datetime.strptime(s, '%Y-%m-%dT%H:%M:%S.%f')
@@ -571,22 +595,6 @@ def filter_keys(data):
         else:
             data[k] = str(data[k])
 
-def is_bad_site(data, site_key='MATCH_EXP_JOBGLIDEIN_ResourceName'):
-    bad_sites = ('other','osgconnect','xsede-osg','WIPAC','wipac')
-    if site_key not in data or data[site_key] not in site_names or data[site_key] in bad_sites:
-        if 'MachineAttrGLIDEIN_SiteResource0' in data:
-            data[site_key] = data['MachineAttrGLIDEIN_SiteResource0']
-        else:
-            return True
-    site = data[site_key]
-    if site in bad_sites:
-        return True
-    if '.' in site:
-        return True
-    if site.startswith('gzk9000') or site.startswith('gzk-'):
-        return True
-    return False
-
 def add_classads(data):
     """Add extra classads to a condor job
 
@@ -628,16 +636,17 @@ def add_classads(data):
 
     # add site
     if is_bad_site(data, site_key):
-        site = get_site_from_domain(data['Name'].split('@')[-1])
-        if site:
-            data['site'] = site
-        else:
-            ip = re.match(r'.*?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}).*', data['AddressV1']).group(1)
-            site = get_site_from_ip_range(ip)
+        if 'LastRemoteHost' in data:
+            site = get_site_from_domain(data['LastRemoteHost'].split('@')[-1])
             if site:
                 data['site'] = site
-            else:
-                data['site'] = 'other'
+            elif 'StartdPrincipal' in data:
+                ip = re.match(r'.*?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}).*', data['StartdPrincipal']).group(1)
+                site = get_site_from_ip_range(ip)
+                if site:
+                    data['site'] = site
+                else:
+                    data['site'] = 'other'
     else:
         data['site'] = get_site_from_resource(data[site_key])
 
