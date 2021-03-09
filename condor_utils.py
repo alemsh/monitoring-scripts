@@ -327,6 +327,7 @@ site_names = {
     'SU-ITS-CE2': 'US-OSG-Syracuse',
     'Syracuse': 'US-OSG-Syracuse',
     'UConn-OSG': 'US-OSG-UConn',
+    'UConn-HPC': 'US-OSG-UConn',
     'SDSC-PRP': 'US-OSG-UCSD',
     'UCSDT2': 'US-OSG-UCSD',
     'SLATE_US_UUTAH_KINGSPEAK': 'US-OSG-Utah',
