@@ -431,7 +431,7 @@ gpu_ns_photon = OrderedDict([
     ('v100', 5.49),
     ('a100-sxm2', 2.58),
     ('a100', 2.60),
-    ('quadro rtx 5000', 4.63), # not recently tested
+    ('quadro rtx 5000', 5.2),
     ('quadro rtx 6000', 4.37),
     ('quadro rtx 8000', 3.74),
 ])
