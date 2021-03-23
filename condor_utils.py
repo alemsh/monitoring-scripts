@@ -305,6 +305,8 @@ site_names = {
     'NPX': 'US-NPX',
     'PSU': 'US-PSU',
     'Purdue': 'US-OSG-Purdue',
+    'Purdue-Geddes': 'US-OSG-Purdue',
+    'Purdue-Hammer': 'US-OSG-Purdue',
     'UMD': 'US-UMD',
     'BNL': 'US-OSG-BNL',
     'BNL-ATLAS': 'US-OSG-BNL',
