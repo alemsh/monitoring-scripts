@@ -345,6 +345,7 @@ site_names = {
     'OSG_US_WSU_GRID_ce2': 'US-OSG-WSU',
     'WSU - GRID_ce2': 'US-OSG-WSU',
     'WSU-GRID': 'US-OSG-WSU',
+    'SDSC-Cloud': 'US-OSG-Cloud',
 }
 
 def get_site_from_resource(resource):
