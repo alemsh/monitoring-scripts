@@ -383,9 +383,9 @@ def get_site_from_ip_range(ip):
     return ret
 
 def is_bad_site(data, site_key='MATCH_EXP_JOBGLIDEIN_ResourceName'):
-    bad_sites = ('other','osgconnect','xsede-osg','WIPAC','wipac')
+    bad_sites = ('other','osgconnect','xsede-osg','WIPAC','wipac', 'Undefined', 'undefined')
     if site_key not in data or data[site_key] not in site_names or data[site_key] in bad_sites:
-        if 'MachineAttrGLIDEIN_SiteResource0' in data:
+        if 'MachineAttrGLIDEIN_SiteResource0' in data and data['MachineAttrGLIDEIN_SiteResource0'] not in bad_sites:
             data[site_key] = data['MachineAttrGLIDEIN_SiteResource0']
         else:
             return True
