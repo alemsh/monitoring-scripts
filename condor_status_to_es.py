@@ -146,7 +146,7 @@ def update_jobs(entries, history=False):
         if history:
             if hit["JobStatus"] == 3:
                 category = "removed"
-            elif hit["ExitCode"] == 0:
+            elif hit.get("ExitCode", -1) == 0:
                 category = "finished"
             else:
                 category = "failed"
