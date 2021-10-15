@@ -298,6 +298,9 @@ site_names = {
     'NERSC': 'US-NERSC',
     'CHTC': 'US-CHTC',
     'Local Job': 'US-CHTC',
+    'Wisc-HEP': 'US-UW',
+    'Wisc-WID': 'US-UW',
+    'Wisc-Math': 'US-UW',
     'Georgia_Tech_PACE_CE_2': 'US-GaTech',
     'GaTech': 'US-GaTech',
     'GZK': 'US-GZK',
@@ -351,6 +354,13 @@ site_names = {
     'SDSC-Cloud': 'US-OSG-Cloud',
 }
 
+flock_pools = {
+    'cm.chtc.wisc.edu': 'CHTC',
+    'condor.hep.wisc.edu': 'Wisc-HEP',
+    'wid-cm.discovery.wisc.edu': 'Wisc-WID',
+    'condor.math.wisc.edu': 'Wisc-Math',
+}
+
 def get_site_from_resource(resource):
     if resource in site_names:
         return site_names[resource]
@@ -392,6 +402,8 @@ def is_bad_site(data, site_key='MATCH_EXP_JOBGLIDEIN_ResourceName'):
             data[site_key] = data['MachineAttrGLIDEIN_Site0']
         elif 'MachineAttrGLIDEIN_SiteResource0' in data and data['MachineAttrGLIDEIN_SiteResource0'] not in bad_sites:
             data[site_key] = data['MachineAttrGLIDEIN_SiteResource0']
+        elif 'LastRemotePool' in data and data['LastRemotePool'] in flock_pools and flock_pools[data['LastRemotePool']] not in bad_sites:
+            data[site_key] = flock_pools[data['LastRemotePool']]
         else:
             return True
     site = data[site_key]
