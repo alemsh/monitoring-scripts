@@ -50,6 +50,7 @@ good_keys = {
     'CommittedTime':0.,
     'RemoteWallClockTime':0.,
     'MATCH_EXP_JOBGLIDEIN_ResourceName':'other',
+    'MachineAttrGLIDEIN_Site0':'other',
     'MachineAttrGLIDEIN_SiteResource0':'other',
     'MachineAttrGPU_NAMES0':'',
     'PYGLIDEIN_METRIC_TIME_PER_PHOTON':-1., # need an int or float default for `filter_keys`
