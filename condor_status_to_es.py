@@ -346,56 +346,64 @@ if not "claims" in machine_ad or not "failed" in machine_ad.to_dict()['machine_a
         },
     )
 
+failed = False
 for coll_address in options.collectors:
+    try:
+        gen = update_machines(
+            read_status_from_collector(coll_address, datetime.now() - options.after)
+        )
+        success = es_import(gen)
 
-    gen = update_machines(
-        read_status_from_collector(coll_address, datetime.now() - options.after)
-    )
-    success = es_import(gen)
+        # Update claims from evicted and held jobs
+        after = time.mktime((datetime.now() - timedelta(minutes=10)).timetuple())
+        gen = update_jobs(
+            read_from_collector(
+                coll_address,
+                constraint=(
+                    "((LastVacateTime > {}) && ((LastVacateTime-JobLastStartDate))>60)"
+                    + " || ((JobStatus == 5) && (EnteredCurrentStatus > {}))"
+                ).format(after, after),
+                projection=[
+                    "GlobalJobId",
+                    "NumJobStarts",
+                    "JobStatus",
+                    "JobLastStartDate",
+                    "JobCurrentStartDate",
+                    "EnteredCurrentStatus",
+                    "LastVacateTime",
+                    "LastRemoteHost",
+                ]
+                + ["Request" + resource for resource in RESOURCES],
+            ),
+            history=False,
+        )
+        success = es_import(gen)
 
-    # Update claims from evicted and held jobs
-    after = time.mktime((datetime.now() - timedelta(minutes=10)).timetuple())
-    gen = update_jobs(
-        read_from_collector(
-            coll_address,
-            constraint=(
-                "((LastVacateTime > {}) && ((LastVacateTime-JobLastStartDate))>60)"
-                + " || ((JobStatus == 5) && (EnteredCurrentStatus > {}))"
-            ).format(after, after),
-            projection=[
-                "GlobalJobId",
-                "NumJobStarts",
-                "JobStatus",
-                "JobLastStartDate",
-                "JobCurrentStartDate",
-                "EnteredCurrentStatus",
-                "LastVacateTime",
-                "LastRemoteHost",
-            ]
-            + ["Request" + resource for resource in RESOURCES],
-        ),
-        history=False,
-    )
-    success = es_import(gen)
-
-    # Update claims from finished jobs
-    gen = update_jobs(
-        read_from_collector(
-            coll_address,
-            constraint="!isUndefined(LastRemoteHost)",
-            projection=[
-                "GlobalJobId",
-                "NumJobStarts",
-                "JobLastStartDate",
-                "JobCurrentStartDate",
-                "EnteredCurrentStatus",
-                "JobStatus",
-                "ExitCode",
-                "LastRemoteHost",
-            ]
-            + ["Request" + resource for resource in RESOURCES],
+        # Update claims from finished jobs
+        gen = update_jobs(
+            read_from_collector(
+                coll_address,
+                constraint="!isUndefined(LastRemoteHost)",
+                projection=[
+                    "GlobalJobId",
+                    "NumJobStarts",
+                    "JobLastStartDate",
+                    "JobCurrentStartDate",
+                    "EnteredCurrentStatus",
+                    "JobStatus",
+                    "ExitCode",
+                    "LastRemoteHost",
+                ]
+                + ["Request" + resource for resource in RESOURCES],
+                history=True,
+            ),
             history=True,
-        ),
-        history=True,
-    )
-    success = es_import(gen)
+        )
+        success = es_import(gen)
+
+    except htcondor.HTCondorIOError as e:
+        failed = e
+        logging.error('Condor error', exc_info=True)
+
+if failed:
+    raise failed
