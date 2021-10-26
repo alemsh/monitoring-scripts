@@ -27,7 +27,7 @@ if not args:
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(name)s : %(message)s')
 
-
+import htcondor
 from condor_utils import *
 
 def es_generator(entries):
@@ -68,8 +68,11 @@ def es_import(document_generator):
 
 if options.collectors:
     for coll_address in args:
-        gen = es_generator(read_from_collector(coll_address, history=True))
-        success = es_import(gen)
+        try:
+            gen = es_generator(read_from_collector(coll_address, history=True))
+            success = es_import(gen)
+        except htcondor.HTCondorIOError:
+            logging.error('Condor error', exc_info=True)
 else:
     for path in args:
         for filename in glob.iglob(path):
