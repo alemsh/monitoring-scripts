@@ -66,12 +66,14 @@ def es_import(document_generator):
         success, _ = bulk(es, document_generator, max_retries=20, initial_backoff=2, max_backoff=3600)
     return success
 
+failed = False
 if options.collectors:
     for coll_address in args:
         try:
             gen = es_generator(read_from_collector(coll_address, history=True))
             success = es_import(gen)
-        except htcondor.HTCondorIOError:
+        except htcondor.HTCondorIOError as e:
+            failed = e
             logging.error('Condor error', exc_info=True)
 else:
     for path in args:
@@ -79,3 +81,6 @@ else:
             gen = es_generator(read_from_file(filename))
             success = es_import(gen)
             logging.info('finished processing %s', filename)
+
+if failed:
+    raise failed
