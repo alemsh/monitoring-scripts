@@ -6,7 +6,11 @@ from optparse import OptionParser
 from datetime import datetime,timedelta
 import time
 import logging
-from collections import OrderedDict, Sequence
+from collections import OrderedDict
+try:
+    from collections.abc import Sequence
+except ImportError:
+    from collections import Sequence
 import re
 
 import classad

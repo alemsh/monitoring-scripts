@@ -20,6 +20,7 @@ import elasticsearch_dsl as edsl
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 from elasticsearch_dsl import MultiSearch, Search
+import htcondor
 
 from condor_utils import *
 
