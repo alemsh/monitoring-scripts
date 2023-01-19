@@ -444,10 +444,13 @@ gpu_ns_photon = OrderedDict([
     ('980', 18.22),
     ('1080 ti', 7.12),
     ('1080', 9.97),
+    ('1070', 13.89),
     ('2080 ti', 3.90),
+    ('3090', 2.96),
     ('titan v', 40.0), # not recently tested
     ('titan xp', 6.91),
     ('titan x', 7.49),
+    ('titan rtx', 4.67),
     ('k20', 33.01), # not recently tested
     ('k40', 29.67), # not recently tested
     ('k80', 29.7),
@@ -458,11 +461,17 @@ gpu_ns_photon = OrderedDict([
     ('p100', 8.37),
     ('p40', 5.37), # not recently tested
     ('p4', 17.2),
+    ('t4', 10), # estimated value
     ('v100-sxm2', 4.94),
     ('v100', 5.49),
-    ('a40', 2.90),
+    ('a40', 2.55),
     ('a100-sxm2', 2.58),
+    ('a100.*pcie.*1g\..*', 18.2),
+    ('a100.*pcie.*2g\..*', 9.1),
     ('a100', 2.60),
+    ('a10', 3.64),
+    ('a5000', 3.33),
+    ('a6000', 2.47),
     ('quadro rtx 5000', 5.2),
     ('quadro rtx 6000', 4.37),
     ('quadro rtx 8000', 3.74),
