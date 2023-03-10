@@ -126,20 +126,24 @@ def update_jobs(entries, history=False):
     # job was started
     ms = MultiSearch(using=es, index=options.indexname)
     for hit in jobs:
-        if history:
-            t0 = hit["JobCurrentStartDate"]
-        else:
-            if hit["JobStatus"] == 5:
+        try:
+            if history:
                 t0 = hit["JobCurrentStartDate"]
             else:
-                t0 = hit["JobLastStartDate"]
-        ms = ms.add(
-            Search()
-            .filter("term", Name__keyword=parent_slot_name(hit["LastRemoteHost"]))
-            .filter("range", DaemonStartTime={"lte": datetime.utcfromtimestamp(t0)},)
-            .sort({"DaemonStartTime": {"order": "desc"}})
-            .source(["nuthin"])[:1]
-        )
+                if hit["JobStatus"] == 5:
+                    t0 = hit["JobCurrentStartDate"]
+                else:
+                    t0 = hit["JobLastStartDate"]
+            ms = ms.add(
+                Search()
+                .filter("term", Name__keyword=parent_slot_name(hit["LastRemoteHost"]))
+                .filter("range", DaemonStartTime={"lte": datetime.utcfromtimestamp(t0)},)
+                .sort({"DaemonStartTime": {"order": "desc"}})
+                .source(["nuthin"])[:1]
+            )
+        except Exception:
+            logging.warning('failed to process job, %r', hit)
+            continue
 
     for hit, match in zip(jobs, ms.execute()):
         if not match.hits:
