@@ -57,6 +57,9 @@ good_keys = {
     'MachineAttrGLIDEIN_Site0':'other',
     'MachineAttrGLIDEIN_SiteResource0':'other',
     'MachineAttrGPU_NAMES0':'',
+    'MachineAttrCUDADeviceName0':'',
+    'MachineAttrGPUs_DeviceName0':'',
+    'MachineAttrGPUs_GlobalMemoryMb0':-1.,
     'PYGLIDEIN_METRIC_TIME_PER_PHOTON':-1., # need an int or float default for `filter_keys`
     'StartdPrincipal':'',
     'DAGManJobId':0.,
@@ -477,7 +480,7 @@ gpu_ns_photon = OrderedDict([
 
 def normalize_gpu(job, key='gpuhrs',
     site_key='MATCH_EXP_JOBGLIDEIN_ResourceName',
-    gpunames_key='MachineAttrGPU_NAMES0'
+    gpunames_key=None,
     ):
     """
     Will try to normalize GPUhrs found in `job` dictionary
@@ -494,6 +497,13 @@ def normalize_gpu(job, key='gpuhrs',
     if job.get(raw_key, 0) == 0:
         return
     job[norm_key] = job[raw_key]
+
+    if not gpunames_key:
+        # search for gpu name in job
+        for n in ('GPU_NAMES', 'MachineAttrCUDADeviceName0', 'MachineAttrGPUs_DeviceName0'):
+            if n in job and job[n] != classad.Value.Undefined:
+                gpunames_key = n
+                break
 
     def normalize_gpuhrs(job, gpu_identifier=None):
         """
@@ -846,7 +856,7 @@ def read_status_from_collector(address, after=datetime.now()-timedelta(hours=1))
             for k in list(data.keys()):
                 if k.startswith('GLIDEIN'):
                     del data[k]
-            normalize_gpu(data, 'TotalGPUs', 'GLIDEIN_SiteResource', 'GPU_NAMES')
+            normalize_gpu(data, 'TotalGPUs', 'GLIDEIN_SiteResource')
             for k in temp_keys:
                 if k in data:
                     del data[k]
