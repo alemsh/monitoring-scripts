@@ -473,6 +473,7 @@ gpu_ns_photon = OrderedDict([
     ('a10', 3.64),
     ('a5000', 3.33),
     ('a6000', 2.47),
+    ('l40', 1.01),
     ('quadro rtx 5000', 5.2),
     ('quadro rtx 6000', 4.37),
     ('quadro rtx 8000', 3.74),
