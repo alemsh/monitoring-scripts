@@ -36,4 +36,4 @@ if options.daemon:
         logging.error(f'Condor error: {e}')
 
 for a in ads:
-    print(json.dump(ads))
+    print(json.dumps(a))
