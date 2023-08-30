@@ -22,8 +22,10 @@ parser.add_option('-f','--histfile',
 if not args:
     parser.error('no condor history files or collectors')
 
-
-def resolve_ads():
+def json_generator(entries):
+    for data in entries:
+        add_classads(data)
+        yield data
 
 if options.histfile:
     for path in args:
@@ -43,4 +45,4 @@ for ad in ads:
             ads[attribute] = ad[attribute].eval(classad.ClassAd(ad))
 
 for ad in ads: 
-    json.dump(ad, sys.stdout)
+    json.dump(json_generator(ad), sys.stdout)
