@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
-import os
+import os, sys
 import glob
 import json
 from optparse import OptionParser
 import logging
-import htcondor
+import htcondor, classad
 from condor_utils import *
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(name)s : %(message)s')
@@ -23,6 +23,8 @@ if not args:
     parser.error('no condor history files or collectors')
 
 
+def resolve_ads():
+
 if options.histfile:
     for path in args:
         for filename in glob.iglob(path):
@@ -35,5 +37,10 @@ if options.daemon:
         failed = e
         logging.error(f'Condor error: {e}')
 
-for a in ads:
-    print(json.dumps(a))
+for ad in ads:
+    for attribute in ad:
+        if type(ad[attribute]) is classad.ExprTree:
+            ads[attribute] = ad[attribute].eval(classad.ClassAd(ad))
+
+for ad in ads: 
+    json.dump(ad, sys.stdout)
