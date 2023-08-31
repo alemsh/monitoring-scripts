@@ -12,8 +12,10 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(name
 
 parser = OptionParser('usage: %prog [options] history_files')
 
-parser.add_option('-o','--stdout',default=False, action='store_true',
+parser.add_option('-s','--stdout',default=False, action='store_true',
                   help='dump json to stdout')
+parser.add_option('-o','--outfile',default=False, action='store_true',
+                  help='dump json to file')
 parser.add_option('-d','--daemon',default=False, action='store_true',
                   help='read history from')
 parser.add_option('-f','--histfile',
@@ -39,10 +41,11 @@ if options.daemon:
         failed = e
         logging.error(f'Condor error: {e}')
 
-for ad in ads:
-    for attribute in ad:
-        if type(ad[attribute]) is classad.ExprTree:
-            ads[attribute] = ad[attribute].eval(classad.ClassAd(ad))
+if options.stdout:
+    fp = sys.stdout
+if options.outfile:
+    fp = glob.iglob(options.outfile)
 
-for ad in ads: 
-    json.dump(json_generator(ad), sys.stdout)
+with open(fp) as fobj:
+    for ad in json_generator(ads): 
+        json.dump(ad, fobj)
