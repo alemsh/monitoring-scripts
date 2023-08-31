@@ -14,7 +14,7 @@ parser = OptionParser('usage: %prog [options] history_files')
 
 parser.add_option('-s','--stdout',default=False, action='store_true',
                   help='dump json to stdout')
-parser.add_option('-o','--outfile',default=False, action='store_true',
+parser.add_option('-o','--outfile',
                   help='dump json to file')
 parser.add_option('-d','--daemon',default=False, action='store_true',
                   help='read history from')
@@ -44,8 +44,9 @@ if options.daemon:
 if options.stdout:
     fp = sys.stdout
 if options.outfile:
-    fp = glob.iglob(options.outfile)
+    fp = options.outfile
 
-with open(fp) as fobj:
-    for ad in json_generator(ads): 
+with open(fp, 'w') as fobj:
+    for ad in json_generator(ads):
         json.dump(ad, fobj)
+        fobj.write('\n')
